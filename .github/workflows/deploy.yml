@@ -3,7 +3,7 @@ name: Deploy ValesSMP Website
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   deploy:
