@@ -10,4 +10,4 @@ jobs:
     runs-on: self-hosted
     steps:
     - name: Deploy Website
-      run: /home/docker/scripts/github-deploy.sh
+      run: /home/hxrry27/docker/scripts/github-deploy.sh
