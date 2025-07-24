@@ -11,9 +11,10 @@ import {
   Sparkles,
   BarChart3,
   BookOpen,
-  Image
+  Image as ImageIcon
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function Home() {
   const [playerCount, setPlayerCount] = useState(47) // Default fallback
@@ -222,7 +223,7 @@ export default function Home() {
             {/* Placeholder for server images */}
             <Card className="overflow-hidden border-0 bg-[#161b22]">
               <div className="aspect-video bg-[#0d1117] flex items-center justify-center">
-                <Image className="h-12 w-12 text-muted-foreground" />
+                <ImageIcon className="h-12 w-12 text-muted-foreground" />
               </div>
               <div className="p-4">
                 <h3 className="font-semibold font-ranyth">Spawn Area</h3>
@@ -232,7 +233,7 @@ export default function Home() {
 
             <Card className="overflow-hidden border-0 bg-[#161b22]">
               <div className="aspect-video bg-[#0d1117] flex items-center justify-center">
-                <Image className="h-12 w-12 text-muted-foreground" />
+                <ImageIcon className="h-12 w-12 text-muted-foreground" />
               </div>
               <div className="p-4">
                 <h3 className="font-semibold font-ranyth">Shopping District</h3>
@@ -242,7 +243,7 @@ export default function Home() {
 
             <Card className="overflow-hidden border-0 bg-[#161b22]">
               <div className="aspect-video bg-[#0d1117] flex items-center justify-center">
-                <Image className="h-12 w-12 text-muted-foreground" />
+                <ImageIcon className="h-12 w-12 text-muted-foreground" />
               </div>
               <div className="p-4">
                 <h3 className="font-semibold font-ranyth">Community Projects</h3>
@@ -261,7 +262,7 @@ export default function Home() {
             {/* Brand Column */}
             <div className="col-span-2">
               <div className="flex items-center gap-3 mb-4">
-                <img src="/logo.png" alt="ValeSMP" className="h-10 w-10" />
+                <Image src="/logo.png" alt="ValeSMP" width={40} height={40} className="h-10 w-10" />
                 <span className="text-xl font-bold font-ranyth">ValeSMP</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
@@ -336,7 +337,7 @@ export default function Home() {
           <div className="container mx-auto max-w-6xl px-4 py-4">
             <div className="flex flex-col md:flex-row justify-between items-center text-xs text-muted-foreground">
               <p>© 2025 ValeSMP. Not affiliated with Mojang Studios or Microsoft in any way.</p>
-              <p>Made with <img src="/heart.png" alt="love" className="inline-block h-4 w-4 mx-1 hover:scale-110 transition-transform"/> by the ValeSMP Team </p>
+              <p>Made with <Image src="/heart.png" alt="love" width={16} height={16} className="inline-block h-4 w-4 mx-1 hover:scale-110 transition-transform"/> by the ValeSMP Team </p>
             </div>
           </div>
         </div>
