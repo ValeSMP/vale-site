@@ -26,7 +26,7 @@ export default function MapsPage() {
               LIVE WORLD MAPS
             </span>
           </h1>
-          <p className="mb-12 text-center text-xl text-muted-foreground font-ranyth-mixed">
+          <p className="mb-12 text-center text-xl text-muted-foreground">
             Explore our worlds in real-time with interactive maps
           </p>
          
@@ -34,19 +34,19 @@ export default function MapsPage() {
             <TabsList className="grid w-full grid-cols-3 bg-[#262626] border-0">
               <TabsTrigger 
                 value="smp" 
-                className="data-[state=active]:bg-vale-blue-light data-[state=active]:text-white font-ranyth-mixed"
+                className="data-[state=active]:bg-vale-blue-light data-[state=active]:text-white font-ranyth"
               >
                 Survival
               </TabsTrigger>
               <TabsTrigger 
                 value="creative" 
-                className="data-[state=active]:bg-vale-green data-[state=active]:text-white font-ranyth-mixed"
+                className="data-[state=active]:bg-vale-green data-[state=active]:text-white font-ranyth"
               >
                 Creative
               </TabsTrigger>
               <TabsTrigger 
                 value="resource" 
-                className="data-[state=active]:bg-vale-blue data-[state=active]:text-white font-ranyth-mixed"
+                className="data-[state=active]:bg-vale-blue data-[state=active]:text-white font-ranyth"
               >
                 Resource
               </TabsTrigger>
@@ -67,7 +67,7 @@ export default function MapsPage() {
                       Survival World
                     </span>
                   </h3>
-                  <p className="text-muted-foreground font-ranyth-mixed">
+                  <p className="text-muted-foreground">
                     Our main world where communities thrive. Build, trade, and explore with friends.
                   </p>
                 </div>
@@ -89,7 +89,7 @@ export default function MapsPage() {
                       Creative World
                     </span>
                   </h3>
-                  <p className="text-muted-foreground font-ranyth-mixed">
+                  <p className="text-muted-foreground">
                     Unlimited resources for your most ambitious builds. Let your creativity run wild.
                   </p>
                 </div>
@@ -111,7 +111,7 @@ export default function MapsPage() {
                       Resource World
                     </span>
                   </h3>
-                  <p className="text-muted-foreground font-ranyth-mixed">
+                  <p className="text-muted-foreground">
                     Fresh world that resets monthly. Gather resources without affecting the main world.
                   </p>
                 </div>

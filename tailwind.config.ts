@@ -17,6 +17,7 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
+        // Vale custom fonts for headings
         'ranyth': ['Ranyth', 'sans-serif'],
         'ranyth-mixed': ['RanythMixed', 'sans-serif'],
       },
@@ -59,6 +60,8 @@ const config: Config = {
           "blue-light": "#8AADD5",
           green: "#1bd96a",
           "green-dark": "#16a550",
+          red: "#db4650",
+          grey: "#8c8484"
         },
       },
       borderRadius: {
