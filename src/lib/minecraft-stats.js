@@ -69,7 +69,7 @@ export function formatStatName(statKey) {
   // minecraft:mined:minecraft:diamond_ore -> Mined Diamond Ore
   
   const parts = statKey.split(':');
-  const category = parts[0];
+  // const category = parts[0];
   const type = parts[1];
   const item = parts[parts.length - 1];
   

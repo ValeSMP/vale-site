@@ -1,21 +1,67 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, Crown, User, Clock, Award, TrendingUp, Search, ChevronLeft, Users, Sparkles, Sword, Pickaxe, Map, Heart, Skull, Diamond, Hammer, Fish, Footprints, Shield, Zap, Eye } from 'lucide-react';
+import { Crown, Clock, Search, ChevronLeft, Sparkles, Sword, Pickaxe, Map, Heart, Skull, Diamond, Hammer, Fish, Shield, Zap, Eye, LucideProps } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import Image from "next/image";
+
+// Types
+interface Player {
+  uuid: string;
+  name: string;
+  crownScore: number;
+  lastOnline: string;
+  playtime: number;
+  medals: {
+    gold: number;
+    silver: number;
+    bronze: number;
+  };
+}
+
+interface Ranking {
+  player: string;
+  value: number;
+  medal?: 'gold' | 'silver' | 'bronze';
+}
+
+interface Award {
+  id: string;
+  name: string;
+  objective: string;
+  icon: React.ComponentType<LucideProps>;
+  winner: {
+    name: string;
+    value: number;
+    uuid: string;
+  };
+  allRankings: Ranking[];
+}
+
+interface Event {
+  id: string;
+  name: string;
+  status: string;
+  winner: string;
+  endTime: string;
+  participants: number;
+}
 
 const StatsPage = () => {
-  const [activeTab, setActiveTab] = useState('awards');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [selectedAward, setSelectedAward] = useState(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedAward, setSelectedAward] = useState<Award | null>(null);
 
   // Mock data until API sorted
-  const mockData = {
+  const mockData: {
+    players: Player[];
+    awards: Award[];
+    events: Event[];
+  } = {
     players: [
       { uuid: '1', name: 'ValeCraft_Pro', crownScore: 142, lastOnline: '2025-01-14', playtime: 3456789, medals: { gold: 4, silver: 8, bronze: 15 } },
       { uuid: '2', name: 'BlockMaster42', crownScore: 128, lastOnline: '2025-01-14', playtime: 2987654, medals: { gold: 3, silver: 7, bronze: 14 } },
@@ -188,20 +234,20 @@ const StatsPage = () => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
-  const formatPlaytime = (ticks) => {
+  const formatPlaytime = (ticks: number): string => {
     const hours = Math.floor(ticks / 72000);
     const minutes = Math.floor((ticks % 72000) / 1200);
     return `${hours}h ${minutes}m`;
   };
 
-  const formatValue = (value, awardId) => {
+  const formatValue = (value: number, awardId: string): string => {
     if (awardId === 'dedication') return formatPlaytime(value);
     if (awardId === 'explorer' || awardId === 'sprinter') return `${(value / 100).toFixed(1)} km`;
-    if (awardId === 'survivor') return value; // Just the number for deaths
+    if (awardId === 'survivor') return value.toString(); // Just the number for deaths
     return value.toLocaleString();
   };
 
-  const getMedalEmoji = (medal) => {
+  const getMedalEmoji = (medal: string): string => {
     switch (medal) {
       case 'gold': return '🥇';
       case 'silver': return '🥈';
@@ -210,7 +256,7 @@ const StatsPage = () => {
     }
   };
 
-  const filteredPlayers = mockData.players.filter(player =>
+  const filteredPlayers: Player[] = mockData.players.filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -225,8 +271,8 @@ const StatsPage = () => {
     );
   }
 
-  // Modal for detailed award view
-  const AwardModal = ({ award, onClose }) => {
+  // Modal for full detail view
+  const AwardModal = ({ award, onClose }: { award: Award; onClose: () => void }) => {
     if (!award) return null;
     
     const Icon = award.icon;
@@ -253,7 +299,7 @@ const StatsPage = () => {
           
           <div className="p-6">
             <div className="space-y-3">
-              {award.allRankings.map((ranking, index) => (
+              {award.allRankings.map((ranking: Ranking, index: number) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-[#1a1a2a] rounded-lg hover:bg-[#1f1f3a] transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="text-2xl font-bold w-10">
@@ -328,7 +374,7 @@ const StatsPage = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Awards - Now the main tab */}
+          {/* Awards - moved to main tab */}
           <TabsContent value="awards" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {mockData.awards.map(award => {
@@ -386,10 +432,13 @@ const StatsPage = () => {
                         {index === 2 && '🥉'}
                         {index > 2 && `#${index + 1}`}
                       </div>
-                      <img
+                      <Image
                         src={`https://crafatar.com/avatars/${player.uuid}?size=64&overlay`}
                         alt={player.name}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 rounded"
+                        unoptimized
                       />
                       <div>
                         <h3 className="text-2xl font-semibold font-ranyth-mixed">{player.name}</h3>
@@ -436,10 +485,13 @@ const StatsPage = () => {
                 <Card key={player.uuid} className="overflow-hidden border-0 bg-[#262626] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-vale-green/35">
                   <div className="p-6">
                     <div className="flex items-center space-x-4 mb-4">
-                      <img
+                      <Image
                         src={`https://crafatar.com/avatars/${player.uuid}?size=64&overlay`}
                         alt={player.name}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 rounded"
+                        unoptimized
                       />
                       <div>
                         <h3 className="text-xl font-semibold font-ranyth-mixed">{player.name}</h3>
