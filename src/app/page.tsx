@@ -23,7 +23,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPlayerCount = async () => {
       try {
-        const url = 'https://api.mcsrvstat.us/2/dev.hxrry27.co.uk'
+        const url = 'https://api.mcsrvstat.us/2/play.valesmp.com'
         console.log('Fetching player count from:', url)
         
         // Simple fetch with no headers

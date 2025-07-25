@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Crown, Clock, Search, ChevronLeft, Sparkles, Sword, Pickaxe, Map, Heart, Skull, Diamond, Hammer, Fish, Shield, Zap, Eye, LucideProps } from 'lucide-react';
+import { Crown, Clock, Search, ChevronLeft, Sword, Pickaxe, Map, Heart, Skull, Diamond, Hammer, Fish, Shield, Zap, Eye, LucideProps } from 'lucide-react';
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import Image from "next/image";
+import { statsAPI, formatStatName, formatStatValue } from '@/lib/minecraft-stats';
 
 // Types
 interface Player {
@@ -51,188 +51,237 @@ interface Event {
   participants: number;
 }
 
+interface ApiRanking {
+  username: string;
+  value: number;
+}
+
+interface StatCategory {
+  id: string;
+  name: string;
+  icon: React.ComponentType<LucideProps>;
+  statKeys: string[];
+}
+
 const StatsPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
+  const [awards, setAwards] = useState<Award[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data until API sorted
-  const mockData: {
-    players: Player[];
-    awards: Award[];
-    events: Event[];
-  } = {
-    players: [
-      { uuid: '1', name: 'ValeCraft_Pro', crownScore: 142, lastOnline: '2025-01-14', playtime: 3456789, medals: { gold: 4, silver: 8, bronze: 15 } },
-      { uuid: '2', name: 'BlockMaster42', crownScore: 128, lastOnline: '2025-01-14', playtime: 2987654, medals: { gold: 3, silver: 7, bronze: 14 } },
-      { uuid: '3', name: 'MinecraftLegend', crownScore: 115, lastOnline: '2025-01-13', playtime: 2654321, medals: { gold: 2, silver: 9, bronze: 12 } },
-      { uuid: '4', name: 'DiamondHunter', crownScore: 98, lastOnline: '2025-01-14', playtime: 2345678, medals: { gold: 2, silver: 5, bronze: 11 } },
-      { uuid: '5', name: 'RedstoneWizard', crownScore: 87, lastOnline: '2025-01-12', playtime: 2123456, medals: { gold: 1, silver: 6, bronze: 13 } },
-    ],
-    awards: [
-      {
-        id: 'dedication',
-        name: 'Dedication',
-        objective: 'most time played',
-        icon: Clock,
-        winner: { name: 'ValeCraft_Pro', value: 3456789, uuid: '1' },
-        allRankings: [
-          { player: 'ValeCraft_Pro', value: 3456789, medal: 'gold' },
-          { player: 'BlockMaster42', value: 2987654, medal: 'silver' },
-          { player: 'MinecraftLegend', value: 2654321, medal: 'bronze' },
-          { player: 'DiamondHunter', value: 2345678 },
-          { player: 'RedstoneWizard', value: 2123456 },
-        ]
-      },
-      {
-        id: 'miner',
-        name: 'Super Miner',
-        objective: 'most blocks mined',
-        icon: Pickaxe,
-        winner: { name: 'DiamondHunter', value: 156789, uuid: '4' },
-        allRankings: [
-          { player: 'DiamondHunter', value: 156789, medal: 'gold' },
-          { player: 'MinecraftLegend', value: 134567, medal: 'silver' },
-          { player: 'ValeCraft_Pro', value: 123456, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'builder',
-        name: 'Master Builder',
-        objective: 'most blocks placed',
-        icon: Hammer,
-        winner: { name: 'BlockMaster42', value: 234567, uuid: '2' },
-        allRankings: [
-          { player: 'BlockMaster42', value: 234567, medal: 'gold' },
-          { player: 'RedstoneWizard', value: 198765, medal: 'silver' },
-          { player: 'ValeCraft_Pro', value: 187654, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'explorer',
-        name: 'World Explorer',
-        objective: 'longest distance traveled',
-        icon: Map,
-        winner: { name: 'MinecraftLegend', value: 987654, uuid: '3' },
-        allRankings: [
-          { player: 'MinecraftLegend', value: 987654, medal: 'gold' },
-          { player: 'ValeCraft_Pro', value: 876543, medal: 'silver' },
-          { player: 'DiamondHunter', value: 765432, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'survivor',
-        name: 'Survivor',
-        objective: 'fewest deaths',
-        icon: Heart,
-        winner: { name: 'BlockMaster42', value: 3, uuid: '2' },
-        allRankings: [
-          { player: 'BlockMaster42', value: 3, medal: 'gold' },
-          { player: 'MinecraftLegend', value: 7, medal: 'silver' },
-          { player: 'RedstoneWizard', value: 12, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'monster_hunter',
-        name: 'Monster Hunter',
-        objective: 'most hostile mobs killed',
-        icon: Sword,
-        winner: { name: 'DiamondHunter', value: 4567, uuid: '4' },
-        allRankings: [
-          { player: 'DiamondHunter', value: 4567, medal: 'gold' },
-          { player: 'ValeCraft_Pro', value: 3987, medal: 'silver' },
-          { player: 'BlockMaster42', value: 3456, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'diamond_collector',
-        name: 'Diamond Collector',
-        objective: 'most diamonds mined',
-        icon: Diamond,
-        winner: { name: 'DiamondHunter', value: 342, uuid: '4' },
-        allRankings: [
-          { player: 'DiamondHunter', value: 342, medal: 'gold' },
-          { player: 'ValeCraft_Pro', value: 298, medal: 'silver' },
-          { player: 'MinecraftLegend', value: 276, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'fisherman',
-        name: 'Master Fisherman',
-        objective: 'most fish caught',
-        icon: Fish,
-        winner: { name: 'BlockMaster42', value: 1876, uuid: '2' },
-        allRankings: [
-          { player: 'BlockMaster42', value: 1876, medal: 'gold' },
-          { player: 'RedstoneWizard', value: 1543, medal: 'silver' },
-          { player: 'MinecraftLegend', value: 1234, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'sprinter',
-        name: 'Speed Demon',
-        objective: 'longest distance sprinted',
-        icon: Zap,
-        winner: { name: 'MinecraftLegend', value: 567890, uuid: '3' },
-        allRankings: [
-          { player: 'MinecraftLegend', value: 567890, medal: 'gold' },
-          { player: 'ValeCraft_Pro', value: 456789, medal: 'silver' },
-          { player: 'DiamondHunter', value: 345678, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'dragon_slayer',
-        name: 'Dragon Slayer',
-        objective: 'ender dragons killed',
-        icon: Shield,
-        winner: { name: 'ValeCraft_Pro', value: 8, uuid: '1' },
-        allRankings: [
-          { player: 'ValeCraft_Pro', value: 8, medal: 'gold' },
-          { player: 'BlockMaster42', value: 5, medal: 'silver' },
-          { player: 'DiamondHunter', value: 3, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'traveler',
-        name: 'Dimensional Traveler',
-        objective: 'most nether portals used',
-        icon: Eye,
-        winner: { name: 'RedstoneWizard', value: 876, uuid: '5' },
-        allRankings: [
-          { player: 'RedstoneWizard', value: 876, medal: 'gold' },
-          { player: 'MinecraftLegend', value: 654, medal: 'silver' },
-          { player: 'ValeCraft_Pro', value: 543, medal: 'bronze' },
-        ]
-      },
-      {
-        id: 'mob_grinder',
-        name: 'Mob Grinder',
-        objective: 'most creepers killed',
-        icon: Skull,
-        winner: { name: 'DiamondHunter', value: 987, uuid: '4' },
-        allRankings: [
-          { player: 'DiamondHunter', value: 987, medal: 'gold' },
-          { player: 'BlockMaster42', value: 876, medal: 'silver' },
-          { player: 'ValeCraft_Pro', value: 765, medal: 'bronze' },
-        ]
-      },
-    ],
-    events: [
-      {
-        id: 'halloween2024',
-        name: 'Halloween Skeleton Hunt',
-        status: 'finished',
-        winner: 'BlockMaster42',
-        endTime: '2024-11-01',
-        participants: 47,
-      }
-    ]
-  };
+  // Define stat categories with their corresponding Minecraft stat keys
+  const statCategories: StatCategory[] = [
+    {
+      id: 'time',
+      name: 'Dedication',
+      icon: Clock,
+      statKeys: ['minecraft:custom:minecraft:play_time', 'minecraft:custom:minecraft:time_since_rest']
+    },
+    {
+      id: 'mining',
+      name: 'Super Miner',
+      icon: Pickaxe,
+      statKeys: [
+        'minecraft:mined:minecraft:stone',
+        'minecraft:mined:minecraft:deepslate',
+        'minecraft:mined:minecraft:coal_ore',
+        'minecraft:mined:minecraft:iron_ore',
+        'minecraft:mined:minecraft:gold_ore',
+        'minecraft:mined:minecraft:diamond_ore',
+        'minecraft:mined:minecraft:netherite_ore'
+      ]
+    },
+    {
+      id: 'building',
+      name: 'Master Builder',
+      icon: Hammer,
+      statKeys: [
+        'minecraft:used:minecraft:stone',
+        'minecraft:used:minecraft:cobblestone',
+        'minecraft:used:minecraft:oak_planks',
+        'minecraft:used:minecraft:spruce_planks'
+      ]
+    },
+    {
+      id: 'exploration',
+      name: 'World Explorer',
+      icon: Map,
+      statKeys: [
+        'minecraft:custom:minecraft:walk_one_cm',
+        'minecraft:custom:minecraft:sprint_one_cm',
+        'minecraft:custom:minecraft:fly_one_cm'
+      ]
+    },
+    {
+      id: 'survival',
+      name: 'Survivor',
+      icon: Heart,
+      statKeys: ['minecraft:custom:minecraft:deaths']
+    },
+    {
+      id: 'combat',
+      name: 'Monster Hunter',
+      icon: Sword,
+      statKeys: [
+        'minecraft:killed:minecraft:zombie',
+        'minecraft:killed:minecraft:skeleton',
+        'minecraft:killed:minecraft:creeper',
+        'minecraft:killed:minecraft:spider',
+        'minecraft:killed:minecraft:enderman'
+      ]
+    },
+    {
+      id: 'diamonds',
+      name: 'Diamond Collector',
+      icon: Diamond,
+      statKeys: ['minecraft:mined:minecraft:diamond_ore', 'minecraft:mined:minecraft:deepslate_diamond_ore']
+    },
+    {
+      id: 'fishing',
+      name: 'Master Fisherman',
+      icon: Fish,
+      statKeys: ['minecraft:custom:minecraft:fish_caught']
+    },
+    {
+      id: 'sprinting',
+      name: 'Speed Demon',
+      icon: Zap,
+      statKeys: ['minecraft:custom:minecraft:sprint_one_cm']
+    },
+    {
+      id: 'dragon',
+      name: 'Dragon Slayer',
+      icon: Shield,
+      statKeys: ['minecraft:killed:minecraft:ender_dragon']
+    },
+    {
+      id: 'travel',
+      name: 'Dimensional Traveler',
+      icon: Eye,
+      statKeys: ['minecraft:custom:minecraft:enter_nether_portal']
+    },
+    {
+      id: 'creepers',
+      name: 'Mob Grinder',
+      icon: Skull,
+      statKeys: ['minecraft:killed:minecraft:creeper']
+    }
+  ];
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000);
+    loadAllData();
   }, []);
+
+  const loadAllData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Load awards based on stat categories
+      const loadedAwards = await Promise.all(
+        statCategories.map(async (category) => {
+          try {
+            // For each category, get the top players for the primary stat
+            const primaryStat = category.statKeys[0];
+            const response = await statsAPI.getTopPlayers(primaryStat, 10);
+            
+            if (response && response.players && response.players.length > 0) {
+              const rankings: Ranking[] = response.players.map((player: ApiRanking, index: number) => ({
+                player: player.username,
+                value: player.value,
+                medal: index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : undefined
+              }));
+
+              const winner = response.players[0];
+              
+              return {
+                id: category.id,
+                name: category.name,
+                objective: formatStatObjective(category.statKeys[0]),
+                icon: category.icon,
+                winner: {
+                  name: winner.username,
+                  value: winner.value,
+                  uuid: winner.uuid || 'unknown'
+                },
+                allRankings: rankings
+              };
+            }
+          } catch (err) {
+            console.error(`Failed to load award for ${category.name}:`, err);
+          }
+          return null;
+        })
+      );
+
+      const validAwards = loadedAwards.filter((award): award is Award => award !== null);
+      setAwards(validAwards);
+
+      // Calculate hall of fame based on awards
+      const hallOfFame = calculateHallOfFame(validAwards);
+      setPlayers(hallOfFame);
+
+      // For now, events are empty - you can implement event loading later
+      setEvents([]);
+
+    } catch (err) {
+      console.error('Failed to load stats data:', err);
+      setError('Failed to load statistics. Please check if the stats API is running.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatStatObjective = (statKey: string): string => {
+    if (statKey.includes('play_time')) return 'most time played';
+    if (statKey.includes('mined')) return 'most blocks mined';
+    if (statKey.includes('used') || statKey.includes('placed')) return 'most blocks placed';
+    if (statKey.includes('walk_one_cm')) return 'longest distance traveled';
+    if (statKey.includes('deaths')) return 'fewest deaths';
+    if (statKey.includes('killed')) return 'most hostile mobs killed';
+    if (statKey.includes('diamond')) return 'most diamonds mined';
+    if (statKey.includes('fish_caught')) return 'most fish caught';
+    if (statKey.includes('sprint_one_cm')) return 'longest distance sprinted';
+    if (statKey.includes('ender_dragon')) return 'ender dragons killed';
+    if (statKey.includes('nether_portal')) return 'most nether portals used';
+    if (statKey.includes('creeper')) return 'most creepers killed';
+    return formatStatName(statKey).toLowerCase();
+  };
+
+  const calculateHallOfFame = (awards: Award[]): Player[] => {
+    const playerScores: { [key: string]: { name: string; gold: number; silver: number; bronze: number; } } = {};
+
+    awards.forEach(award => {
+      award.allRankings.forEach(ranking => {
+        if (!playerScores[ranking.player]) {
+          playerScores[ranking.player] = { name: ranking.player, gold: 0, silver: 0, bronze: 0 };
+        }
+
+        if (ranking.medal === 'gold') playerScores[ranking.player].gold++;
+        else if (ranking.medal === 'silver') playerScores[ranking.player].silver++;
+        else if (ranking.medal === 'bronze') playerScores[ranking.player].bronze++;
+      });
+    });
+
+    return Object.values(playerScores)
+      .map(player => ({
+        uuid: 'unknown', // We don't have UUIDs from leaderboards
+        name: player.name,
+        crownScore: player.gold * 3 + player.silver * 2 + player.bronze * 1,
+        lastOnline: new Date().toISOString().split('T')[0],
+        playtime: 0, // Would need to fetch individual player stats
+        medals: {
+          gold: player.gold,
+          silver: player.silver,
+          bronze: player.bronze
+        }
+      }))
+      .sort((a, b) => b.crownScore - a.crownScore)
+      .slice(0, 10);
+  };
 
   const formatPlaytime = (ticks: number): string => {
     const hours = Math.floor(ticks / 72000);
@@ -241,9 +290,11 @@ const StatsPage = () => {
   };
 
   const formatValue = (value: number, awardId: string): string => {
-    if (awardId === 'dedication') return formatPlaytime(value);
-    if (awardId === 'explorer' || awardId === 'sprinter') return `${(value / 100).toFixed(1)} km`;
-    if (awardId === 'survivor') return value.toString(); // Just the number for deaths
+    // Use the formatStatValue function from minecraft-stats.js
+    const category = statCategories.find(cat => cat.id === awardId);
+    if (category && category.statKeys[0]) {
+      return formatStatValue(category.statKeys[0], value);
+    }
     return value.toLocaleString();
   };
 
@@ -256,7 +307,7 @@ const StatsPage = () => {
     }
   };
 
-  const filteredPlayers: Player[] = mockData.players.filter(player =>
+  const filteredPlayers: Player[] = players.filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -266,6 +317,19 @@ const StatsPage = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-vale-blue-light mx-auto mb-4"></div>
           <p className="text-2xl font-ranyth-mixed">Loading Vale SMP Stats...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0F1216] text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-2xl font-ranyth-mixed text-red-400 mb-4">{error}</p>
+          <Button onClick={loadAllData} className="bg-vale-blue-light hover:bg-vale-blue">
+            Retry
+          </Button>
         </div>
       </div>
     );
@@ -347,7 +411,7 @@ const StatsPage = () => {
 
         {/* Navigation Tabs */}
         <Tabs defaultValue="awards" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-[#262626] border-0 h-12">
+          <TabsList className="grid w-full grid-cols-3 bg-[#262626] border-0 h-12">
             <TabsTrigger 
               value="awards" 
               className="data-[state=active]:bg-vale-blue-light data-[state=active]:text-white font-ranyth-mixed text-base"
@@ -366,18 +430,12 @@ const StatsPage = () => {
             >
               Players
             </TabsTrigger>
-            <TabsTrigger 
-              value="events" 
-              className="data-[state=active]:bg-vale-green-dark data-[state=active]:text-white font-ranyth-mixed text-base"
-            >
-              Events
-            </TabsTrigger>
           </TabsList>
 
-          {/* Awards - moved to main tab */}
+          {/* Awards */}
           <TabsContent value="awards" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mockData.awards.map(award => {
+              {awards.map(award => {
                 const Icon = award.icon;
                 return (
                   <div
@@ -409,9 +467,9 @@ const StatsPage = () => {
           {/* Hall of Fame */}
           <TabsContent value="hallOfFame" className="mt-6">
             <div className="space-y-4">
-              {mockData.players.map((player, index) => (
+              {players.map((player, index) => (
                 <Card 
-                  key={player.uuid} 
+                  key={player.name} 
                   className={`overflow-hidden border-0 bg-[#262626] transition-all duration-200 hover:scale-[1.02] ${
                     index === 0 ? 'hover:shadow-lg hover:shadow-vale-blue-light/35' : 
                     index === 1 ? 'hover:shadow-lg hover:shadow-gray-300/35' :
@@ -433,7 +491,7 @@ const StatsPage = () => {
                         {index > 2 && `#${index + 1}`}
                       </div>
                       <Image
-                        src={`https://crafatar.com/avatars/${player.uuid}?size=64&overlay`}
+                        src={`https://crafatar.com/avatars/${player.name}?size=64&overlay`}
                         alt={player.name}
                         width={80}
                         height={80}
@@ -482,11 +540,11 @@ const StatsPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPlayers.map(player => (
-                <Card key={player.uuid} className="overflow-hidden border-0 bg-[#262626] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-vale-green/35">
+                <Card key={player.name} className="overflow-hidden border-0 bg-[#262626] transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-vale-green/35">
                   <div className="p-6">
                     <div className="flex items-center space-x-4 mb-4">
                       <Image
-                        src={`https://crafatar.com/avatars/${player.uuid}?size=64&overlay`}
+                        src={`https://crafatar.com/avatars/${player.name}?size=64&overlay`}
                         alt={player.name}
                         width={80}
                         height={80}
@@ -506,37 +564,9 @@ const StatsPage = () => {
                         </p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-base">Playtime</p>
-                        <p className="text-2xl font-semibold">{formatPlaytime(player.playtime)}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Events */}
-          <TabsContent value="events" className="mt-6">
-            <div className="space-y-6">
-              {mockData.events.map(event => (
-                <Card key={event.id} className="overflow-hidden border-0 bg-[#262626]">
-                  <div className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-2xl font-semibold font-ranyth">{event.name}</h3>
-                          <Badge variant="outline" className="border-vale-green/50 text-sm">
-                            <Sparkles className="mr-1 h-4 w-4" />
-                            {event.status}
-                          </Badge>
-                        </div>
-                        <p className="text-base text-muted-foreground">Ended: {event.endTime} • {event.participants} participants</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-base text-muted-foreground mb-1">Winner</p>
-                        <p className="text-3xl font-bold bg-gradient-to-r from-vale-blue-light to-vale-green bg-clip-text text-transparent font-ranyth">
-                          {event.winner}
+                        <p className="text-muted-foreground text-base">Awards</p>
+                        <p className="text-2xl font-semibold">
+                          {getMedalEmoji('gold')}{player.medals.gold} {getMedalEmoji('silver')}{player.medals.silver} {getMedalEmoji('bronze')}{player.medals.bronze}
                         </p>
                       </div>
                     </div>
