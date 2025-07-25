@@ -6,11 +6,14 @@ const STATS_API_KEY = process.env.STATS_API_KEY || 'your-api-key';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: { params: { path: string[] } }
 ) {
   try {
+    // Await params in case they're a Promise (Next.js 15+)
+    const { path } = await Promise.resolve(context.params);
+    
     // Reconstruct the API path
-    const apiPath = params.path.join('/');
+    const apiPath = path.join('/');
     const searchParams = request.nextUrl.searchParams.toString();
     const fullUrl = `${STATS_API_URL}/api/stats/${apiPath}${searchParams ? `?${searchParams}` : ''}`;
 
