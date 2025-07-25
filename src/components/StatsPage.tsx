@@ -42,14 +42,14 @@ interface Award {
   allRankings: Ranking[];
 }
 
-interface Event {
-  id: string;
-  name: string;
-  status: string;
-  winner: string;
-  endTime: string;
-  participants: number;
-}
+// interface Event {
+//   id: string;
+//   name: string;
+//   status: string;
+//   winner: string;
+//   endTime: string;
+//   participants: number;
+// }
 
 interface ApiRanking {
   username: string;
@@ -69,7 +69,7 @@ const StatsPage = () => {
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
   const [awards, setAwards] = useState<Award[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
+  // const [events, setEvents] = useState<Event[]>([]); // TODO: Implement events later
   const [error, setError] = useState<string | null>(null);
 
   // Define stat categories with their corresponding Minecraft stat keys
@@ -173,7 +173,7 @@ const StatsPage = () => {
 
   useEffect(() => {
     loadAllData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAllData = async () => {
     setLoading(true);
@@ -225,7 +225,7 @@ const StatsPage = () => {
       setPlayers(hallOfFame);
 
       // For now, events are empty - you can implement event loading later
-      setEvents([]);
+      // setEvents([]);
 
     } catch (err) {
       console.error('Failed to load stats data:', err);
@@ -281,12 +281,6 @@ const StatsPage = () => {
       }))
       .sort((a, b) => b.crownScore - a.crownScore)
       .slice(0, 10);
-  };
-
-  const formatPlaytime = (ticks: number): string => {
-    const hours = Math.floor(ticks / 72000);
-    const minutes = Math.floor((ticks % 72000) / 1200);
-    return `${hours}h ${minutes}m`;
   };
 
   const formatValue = (value: number, awardId: string): string => {
