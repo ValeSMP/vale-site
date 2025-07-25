@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const STATS_API_URL = process.env.STATS_API_URL || 'http://velocity-proxy:8080';
 const STATS_API_KEY = process.env.STATS_API_KEY || 'your-api-key';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function GET(request: NextRequest, { params }: any) {
   try {
     // Get the path segments
