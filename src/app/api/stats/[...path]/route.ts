@@ -4,14 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 const STATS_API_URL = process.env.STATS_API_URL || 'http://velocity-proxy:8080';
 const STATS_API_KEY = process.env.STATS_API_KEY || 'your-api-key';
 
-type RouteContext = {
-  params: Promise<{ path: string[] }> | { path: string[] };
-};
-
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(request: NextRequest, { params }: any) {
   try {
-    // Await params in case they're a Promise (Next.js 15+)
-    const { path } = await Promise.resolve(context.params);
+    // Get the path segments
+    const path = params.path;
     
     // Reconstruct the API path
     const apiPath = path.join('/');
@@ -47,7 +43,6 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-// Also handle health check directly
 export async function HEAD() {
   try {
     const response = await fetch(`${STATS_API_URL}/health`);
