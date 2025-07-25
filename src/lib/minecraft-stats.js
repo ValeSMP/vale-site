@@ -1,20 +1,17 @@
 // lib/minecraft-stats.js
-const STATS_API_URL = process.env.NEXT_PUBLIC_STATS_API_URL || 'http://localhost:8080';
-const STATS_API_KEY = process.env.NEXT_PUBLIC_STATS_API_KEY || 'your-secret-api-key-here';
-
 class MinecraftStatsAPI {
+  constructor() {
+    // Use relative URLs to hit our Next.js API routes
+    this.baseUrl = '/api/stats';
+  }
+
   async makeRequest(endpoint) {
     try {
-      const response = await fetch(`${STATS_API_URL}${endpoint}`, {
-        headers: {
-          'Authorization': `Bearer ${STATS_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await fetch(`${this.baseUrl}${endpoint}`);
       
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('Unauthorized - check API key');
+          throw new Error('Unauthorized - check API configuration');
         }
         throw new Error(`API request failed: ${response.status}`);
       }
@@ -27,24 +24,24 @@ class MinecraftStatsAPI {
   }
 
   async getPlayerStats(username) {
-    return await this.makeRequest(`/api/stats/player/${encodeURIComponent(username)}`);
+    return await this.makeRequest(`/player/${encodeURIComponent(username)}`);
   }
   
   async getTopPlayers(statKey, limit = 10) {
-    return await this.makeRequest(`/api/stats/top/${encodeURIComponent(statKey)}?limit=${limit}`);
+    return await this.makeRequest(`/top/${encodeURIComponent(statKey)}?limit=${limit}`);
   }
   
   async getEventLeaderboard(eventName) {
-    return await this.makeRequest(`/api/stats/event/${encodeURIComponent(eventName)}`);
+    return await this.makeRequest(`/event/${encodeURIComponent(eventName)}`);
   }
   
   async getAllStats() {
-    return await this.makeRequest('/api/stats/all');
+    return await this.makeRequest('/all');
   }
 
   async getHealthStatus() {
     try {
-      const response = await fetch(`${STATS_API_URL}/health`);
+      const response = await fetch(`${this.baseUrl}/health`);
       return response.ok;
     } catch {
       return false;
