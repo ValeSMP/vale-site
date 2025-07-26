@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Crown, Clock, Search, ChevronLeft, Sword, Pickaxe, Map, Heart, Skull, Diamond, Hammer, Fish, Shield, Zap, Eye, LucideProps } from 'lucide-react';
+import { Crown, Clock, Search, ChevronLeft, Sword, Pickaxe, Heart, Skull, Diamond, Fish, Shield, Zap, Eye, LucideProps, Footprints, TreePine, Wrench, Building, Users, Gamepad2, Mountain, Flame, Waves, Home, Target, Beef, Apple, Gem, Compass, Anchor, Train, Rocket } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import Image from "next/image";
-import { statsAPI, formatStatName, formatStatValue } from '@/lib/minecraft-stats';
+import { statsAPI, formatStatValue } from '@/lib/minecraft-stats';
 
-// Types
+// Types (keep existing)
 interface Player {
   uuid: string;
   name: string;
@@ -42,135 +42,579 @@ interface Award {
   allRankings: Ranking[];
 }
 
-// interface Event {
-//   id: string;
-//   name: string;
-//   status: string;
-//   winner: string;
-//   endTime: string;
-//   participants: number;
-// }
-
 interface ApiRanking {
   username: string;
   value: number;
 }
 
-interface StatCategory {
+interface StatDefinition {
   id: string;
   name: string;
+  objective: string;
   icon: React.ComponentType<LucideProps>;
-  statKeys: string[];
+  statKey: string; // Single stat key, not array
+  category: string;
 }
 
 const StatsPage = () => {
+  // State variables (keep existing)
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedAward, setSelectedAward] = useState<Award | null>(null);
   const [awards, setAwards] = useState<Award[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
-  // const [events, setEvents] = useState<Event[]>([]); // TODO: Implement events later
   const [error, setError] = useState<string | null>(null);
 
-  // Define stat categories with their corresponding Minecraft stat keys
-  const statCategories: StatCategory[] = [
+  // Individual statistics - each gets its own award
+  const individualStats: StatDefinition[] = [
+    // MOVEMENT & EXPLORATION
     {
-      id: 'time',
-      name: 'Dedication',
-      icon: Clock,
-      statKeys: ['minecraft:custom:minecraft:play_time', 'minecraft:custom:minecraft:time_since_rest']
+      id: 'distance_walked',
+      name: 'Slow Coach', 
+      objective: 'longest distance walked',
+      icon: Footprints,
+      statKey: 'minecraft:custom:minecraft:walk_one_cm',
+      category: 'Movement'
     },
     {
-      id: 'mining',
-      name: 'Super Miner',
-      icon: Pickaxe,
-      statKeys: [
-        'minecraft:mined:minecraft:stone',
-        'minecraft:mined:minecraft:deepslate',
-        'minecraft:mined:minecraft:coal_ore',
-        'minecraft:mined:minecraft:iron_ore',
-        'minecraft:mined:minecraft:gold_ore',
-        'minecraft:mined:minecraft:diamond_ore',
-        'minecraft:mined:minecraft:netherite_ore'
-      ]
-    },
-    {
-      id: 'building',
-      name: 'Master Builder',
-      icon: Hammer,
-      statKeys: [
-        'minecraft:used:minecraft:stone',
-        'minecraft:used:minecraft:cobblestone',
-        'minecraft:used:minecraft:oak_planks',
-        'minecraft:used:minecraft:spruce_planks'
-      ]
-    },
-    {
-      id: 'exploration',
-      name: 'World Explorer',
-      icon: Map,
-      statKeys: [
-        'minecraft:custom:minecraft:walk_one_cm',
-        'minecraft:custom:minecraft:sprint_one_cm',
-        'minecraft:custom:minecraft:fly_one_cm'
-      ]
-    },
-    {
-      id: 'survival',
-      name: 'Survivor',
-      icon: Heart,
-      statKeys: ['minecraft:custom:minecraft:deaths']
-    },
-    {
-      id: 'combat',
-      name: 'Monster Hunter',
-      icon: Sword,
-      statKeys: [
-        'minecraft:killed:minecraft:zombie',
-        'minecraft:killed:minecraft:skeleton',
-        'minecraft:killed:minecraft:creeper',
-        'minecraft:killed:minecraft:spider',
-        'minecraft:killed:minecraft:enderman'
-      ]
-    },
-    {
-      id: 'diamonds',
-      name: 'Diamond Collector',
-      icon: Diamond,
-      statKeys: ['minecraft:mined:minecraft:diamond_ore', 'minecraft:mined:minecraft:deepslate_diamond_ore']
-    },
-    {
-      id: 'fishing',
-      name: 'Master Fisherman',
-      icon: Fish,
-      statKeys: ['minecraft:custom:minecraft:fish_caught']
-    },
-    {
-      id: 'sprinting',
-      name: 'Speed Demon',
+      id: 'distance_sprinted', 
+      name: 'Marathon Runner', 
+      objective: 'longest distance sprinted',
       icon: Zap,
-      statKeys: ['minecraft:custom:minecraft:sprint_one_cm']
+      statKey: 'minecraft:custom:minecraft:sprint_one_cm',
+      category: 'Movement'
     },
     {
-      id: 'dragon',
-      name: 'Dragon Slayer',
-      icon: Shield,
-      statKeys: ['minecraft:killed:minecraft:ender_dragon']
-    },
-    {
-      id: 'travel',
-      name: 'Dimensional Traveler',
+      id: 'distance_crouched',
+      name: 'Stealth Master', 
+      objective: 'longest distance crouched',
       icon: Eye,
-      statKeys: ['minecraft:custom:minecraft:enter_nether_portal']
+      statKey: 'minecraft:custom:minecraft:crouch_one_cm',
+      category: 'Movement'
     },
     {
-      id: 'creepers',
-      name: 'Mob Grinder',
+      id: 'jumps_made',
+      name: 'Parkour Enthusiast',
+      objective: 'most jumps made',
+      icon: Mountain,
+      statKey: 'minecraft:custom:minecraft:jump',
+      category: 'Movement'
+    },
+    {
+      id: 'distance_climbed',
+      name: 'Wall Crawler',
+      objective: 'longest distance climbed',
+      icon: Mountain,
+      statKey: 'minecraft:custom:minecraft:climb_one_cm',
+      category: 'Movement'
+    },
+    {
+      id: 'distance_fallen',
+      name: 'Gravity Victim',
+      objective: 'longest distance fallen',
+      icon: Mountain,
+      statKey: 'minecraft:custom:minecraft:fall_one_cm',
+      category: 'Movement'
+    },
+    {
+      id: 'distance_elytra',
+      name: 'Minecraft Pilot',
+      objective: 'longest distance flown with elytra',
+      icon: Rocket,
+      statKey: 'minecraft:custom:minecraft:aviate_one_cm',
+      category: 'Movement'
+    },
+    {
+      id: 'distance_swimming',
+      name: 'Olympic Swimmer',
+      objective: 'longest distance swum',
+      icon: Waves,
+      statKey: 'minecraft:custom:minecraft:swim_one_cm',
+      category: 'Movement'
+    },
+    {
+      id: 'distance_underwater',
+      name: 'Deep Sea Diver', 
+      objective: 'longest distance walked underwater',
+      icon: Waves,
+      statKey: 'minecraft:custom:minecraft:walk_under_water_one_cm',
+      category: 'Movement'
+    },
+    {
+      id: 'distance_water_surface',
+      name: 'Water Walker',
+      objective: 'longest distance walked on water',
+      icon: Waves,
+      statKey: 'minecraft:custom:minecraft:walk_on_water_one_cm',
+      category: 'Movement'
+    },
+
+    // TRANSPORTATION
+    {
+      id: 'distance_horse',
+      name: 'Cavalry Expert',
+      objective: 'longest distance traveled by horse',
+      icon: Compass,
+      statKey: 'minecraft:custom:minecraft:horse_one_cm',
+      category: 'Transportation'
+    },
+    {
+      id: 'distance_boat',
+      name: 'Blackbeard', 
+      objective: 'longest distance traveled by boat',
+      icon: Anchor,
+      statKey: 'minecraft:custom:minecraft:boat_one_cm',
+      category: 'Transportation'
+    },
+    {
+      id: 'distance_minecart',
+      name: 'Railway Engineer', 
+      objective: 'longest distance traveled by minecart',
+      icon: Train,
+      statKey: 'minecraft:custom:minecraft:minecart_one_cm',
+      category: 'Transportation'
+    },
+    {
+      id: 'distance_pig',
+      name: 'This Little Piggy Went To Market', 
+      objective: 'longest distance traveled by pig',
+      icon: Heart,
+      statKey: 'minecraft:custom:minecraft:pig_one_cm',
+      category: 'Transportation'
+    },
+    {
+      id: 'distance_strider',
+      name: 'Lava Surfer', 
+      objective: 'longest distance traveled by strider',
+      icon: Flame,
+      statKey: 'minecraft:custom:minecraft:strider_one_cm',
+      category: 'Transportation'
+    },
+
+    // MINING - PRECIOUS MATERIALS
+    {
+      id: 'diamonds_mined',
+      name: 'Diamonds Are A Girls Best Friend', // Better than "Diamond Ore Mined"
+      objective: 'most diamond ore mined',
+      icon: Diamond,
+      statKey: 'minecraft:mined:minecraft:diamond_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'deep_diamonds_mined',
+      name: 'Deep Diamond Hunter', // Better than "Deepslate Diamond Ore Mined"
+      objective: 'most deepslate diamond ore mined',
+      icon: Diamond,
+      statKey: 'minecraft:mined:minecraft:deepslate_diamond_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'emeralds_mined',
+      name: 'Emerald Collector', 
+      objective: 'most emerald ore mined',
+      icon: Gem,
+      statKey: 'minecraft:mined:minecraft:emerald_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'gold_mined',
+      name: 'Gold Prospector', 
+      objective: 'most gold ore mined',
+      icon: Gem,
+      statKey: 'minecraft:mined:minecraft:gold_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'iron_mined',
+      name: 'Iron Miner', 
+      objective: 'most iron ore mined',
+      icon: Pickaxe,
+      statKey: 'minecraft:mined:minecraft:iron_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'coal_mined',
+      name: 'Fossil Fuel Lover', 
+      objective: 'most coal ore mined',
+      icon: Pickaxe,
+      statKey: 'minecraft:mined:minecraft:coal_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'redstone_mined',
+      name: 'Electrician', 
+      objective: 'most redstone ore mined',
+      icon: Zap,
+      statKey: 'minecraft:mined:minecraft:redstone_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'lapis_mined',
+      name: 'Enchanter\'s Friend', 
+      objective: 'most lapis ore mined',
+      icon: Zap,
+      statKey: 'minecraft:mined:minecraft:lapis_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'copper_mined',
+      name: 'Copper Extractor', 
+      objective: 'most copper ore mined',
+      icon: Gem,
+      statKey: 'minecraft:mined:minecraft:copper_ore',
+      category: 'Mining'
+    },
+    {
+      id: 'ancient_debris_mined',
+      name: 'Netherite Seeker', 
+      objective: 'most ancient debris mined',
+      icon: Flame,
+      statKey: 'minecraft:mined:minecraft:ancient_debris',
+      category: 'Mining'
+    },
+
+    // MINING - FOUNDATION MATERIALS
+    {
+      id: 'stone_mined',
+      name: 'Stone Mason', 
+      objective: 'most stone blocks mined',
+      icon: Building,
+      statKey: 'minecraft:mined:minecraft:stone',
+      category: 'Mining'
+    },
+    {
+      id: 'deepslate_mined',
+      name: 'Deep Stone Mason', 
+      objective: 'most deepslate mined',
+      icon: Building,
+      statKey: 'minecraft:mined:minecraft:deepslate',
+      category: 'Mining'
+    },
+    {
+      id: 'wood_mined',
+      name: 'Lumberjack', 
+      objective: 'most wood blocks mined',
+      icon: TreePine,
+      statKey: 'minecraft:mined:minecraft:oak_log',
+      category: 'Mining'
+    },
+    {
+      id: 'obsidian_mined',
+      name: 'Obsidian Breaker', 
+      objective: 'most obsidian mined',
+      icon: Shield,
+      statKey: 'minecraft:mined:minecraft:obsidian',
+      category: 'Mining'
+    },
+
+    // COMBAT - BOSSES
+    {
+      id: 'ender_dragons_killed',
+      name: 'Dragon Slayer', 
+      objective: 'most ender dragons killed',
+      icon: Crown,
+      statKey: 'minecraft:killed:minecraft:ender_dragon',
+      category: 'Combat'
+    },
+    {
+      id: 'wardens_killed',
+      name: 'Deep Dark Survivor',
+      objective: 'most wardens killed',
       icon: Skull,
-      statKeys: ['minecraft:killed:minecraft:creeper']
+      statKey: 'minecraft:killed:minecraft:warden',
+      category: 'Combat'
+    },
+
+    // COMBAT - MONSTERS
+    {
+      id: 'creepers_killed',
+      name: 'Explosive Expert', 
+      objective: 'most creepers killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:creeper',
+      category: 'Combat'
+    },
+    {
+      id: 'zombies_killed',
+      name: 'Zombie Exterminator', 
+      objective: 'most zombies killed',
+      icon: Skull,
+      statKey: 'minecraft:killed:minecraft:zombie',
+      category: 'Combat'
+    },
+    {
+      id: 'skeletons_killed',
+      name: 'Bone Collector', 
+      objective: 'most skeletons killed',
+      icon: Skull,
+      statKey: 'minecraft:killed:minecraft:skeleton',
+      category: 'Combat'
+    },
+    {
+      id: 'spiders_killed',
+      name: 'Arachnophobe', 
+      objective: 'most spiders killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:spider',
+      category: 'Combat'
+    },
+    {
+      id: 'endermen_killed',
+      name: 'Void Warrior', 
+      objective: 'most endermen killed',
+      icon: Eye,
+      statKey: 'minecraft:killed:minecraft:enderman',
+      category: 'Combat'
+    },
+    {
+      id: 'blazes_killed',
+      name: 'Fire Fighter', 
+      objective: 'most blazes killed',
+      icon: Flame,
+      statKey: 'minecraft:killed:minecraft:blaze',
+      category: 'Combat'
+    },
+    {
+      id: 'ghasts_killed',
+      name: 'Protector of the Skies', 
+      objective: 'most ghasts killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:ghast',
+      category: 'Combat'
+    },
+
+    // COMBAT - ANIMALS
+    {
+      id: 'cows_killed',
+      name: 'Beefeater',
+      objective: 'most cows killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:cow',
+      category: 'Combat'
+    },
+    {
+      id: 'pigs_killed',
+      name: 'Bacon Maker',
+      objective: 'most pigs killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:pig',
+      category: 'Combat'
+    },
+    {
+      id: 'chickens_killed',
+      name: 'LA LA LA LAVA',
+      objective: 'most chickens killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:chicken',
+      category: 'Combat'
+    },
+    {
+      id: 'sheep_killed',
+      name: 'Sheep Hater', 
+      objective: 'most sheep killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:sheep',
+      category: 'Combat'
+    },
+
+    // COMBAT - PERFORMANCE
+    {
+      id: 'total_mobs_killed',
+      name: 'Monster Hunter', 
+      objective: 'most mobs killed',
+      icon: Sword,
+      statKey: 'minecraft:custom:minecraft:mob_kills',
+      category: 'Combat'
+    },
+    {
+      id: 'damage_dealt',
+      name: 'Damage Dealer', 
+      objective: 'most damage dealt',
+      icon: Sword,
+      statKey: 'minecraft:custom:minecraft:damage_dealt',
+      category: 'Combat'
+    },
+    {
+      id: 'damage_taken',
+      name: 'Damage Sponge', 
+      objective: 'most damage taken',
+      icon: Shield,
+      statKey: 'minecraft:custom:minecraft:damage_taken',
+      category: 'Combat'
+    },
+
+    // FOOD & CONSUMPTION
+    {
+      id: 'raw_beef_eaten',
+      name: 'Raw Beef Enthusiast', 
+      objective: 'most raw beef consumed',
+      icon: Beef,
+      statKey: 'minecraft:used:minecraft:beef',
+      category: 'Food'
+    },
+    {
+      id: 'cooked_beef_eaten',
+      name: 'Steak Lover', 
+      objective: 'most cooked beef consumed',
+      icon: Beef,
+      statKey: 'minecraft:used:minecraft:cooked_beef',
+      category: 'Food'
+    },
+    {
+      id: 'bread_eaten',
+      name: 'Bread Consumer', 
+      objective: 'most bread consumed',
+      icon: Apple,
+      statKey: 'minecraft:used:minecraft:bread',
+      category: 'Food'
+    },
+    {
+      id: 'apples_eaten',
+      name: 'Apple Muncher', 
+      objective: 'most apples consumed',
+      icon: Apple,
+      statKey: 'minecraft:used:minecraft:apple',
+      category: 'Food'
+    },
+    {
+      id: 'fish_caught',
+      name: 'Fishing Champion', 
+      objective: 'most fish caught',
+      icon: Fish,
+      statKey: 'minecraft:custom:minecraft:fish_caught',
+      category: 'Food'
+    },
+
+    // TOOLS & WEAPONS
+    {
+      id: 'bow_used',
+      name: 'Archer', 
+      objective: 'most bow shots',
+      icon: Target,
+      statKey: 'minecraft:used:minecraft:bow',
+      category: 'Tools'
+    },
+    {
+      id: 'crossbow_used',
+      name: 'Marksman', 
+      objective: 'most crossbow shots',
+      icon: Target,
+      statKey: 'minecraft:used:minecraft:crossbow',
+      category: 'Tools'
+    },
+    {
+      id: 'flint_steel_used',
+      name: 'Fire Starter', 
+      objective: 'most flint and steel uses',
+      icon: Flame,
+      statKey: 'minecraft:used:minecraft:flint_and_steel',
+      category: 'Tools'
+    },
+    {
+      id: 'shears_used',
+      name: 'Shepherd', 
+      objective: 'most shears used',
+      icon: Wrench,
+      statKey: 'minecraft:used:minecraft:shears',
+      category: 'Tools'
+    },
+    {
+      id: 'ender_pearls_used',
+      name: 'Teleporter',
+      objective: 'most ender pearls thrown',
+      icon: Eye,
+      statKey: 'minecraft:used:minecraft:ender_pearl',
+      category: 'Tools'
+    },
+    {
+      id: 'totem_used',
+      name: 'Death Defying',
+      objective: 'most totems of undying used',
+      icon: Heart,
+      statKey: 'minecraft:used:minecraft:totem_of_undying',
+      category: 'Tools'
+    },
+
+    // LIFE MANAGEMENT
+    {
+      id: 'playtime',
+      name: 'Dedicated', 
+      objective: 'most time played',
+      icon: Clock,
+      statKey: 'minecraft:custom:minecraft:play_time',
+      category: 'Life'
+    },
+    {
+      id: 'deaths',
+      name: 'Death Count',
+      objective: 'most deaths',
+      icon: Skull,
+      statKey: 'minecraft:custom:minecraft:deaths',
+      category: 'Life'
+    },
+    {
+      id: 'time_since_death',
+      name: 'Survival Streak', 
+      objective: 'longest survival streak',
+      icon: Heart,
+      statKey: 'minecraft:custom:minecraft:time_since_death',
+      category: 'Life'
+    },
+    {
+      id: 'sleep_count',
+      name: 'Well Rested',
+      objective: 'most times slept in bed',
+      icon: Home,
+      statKey: 'minecraft:custom:minecraft:sleep_in_bed',
+      category: 'Life'
+    },
+
+    // SOCIAL & INTERACTION
+    {
+      id: 'villager_trades',
+      name: 'Merchant', 
+      objective: 'most villager trades',
+      icon: Users,
+      statKey: 'minecraft:custom:minecraft:traded_with_villager',
+      category: 'Social'
+    },
+    {
+      id: 'animals_bred',
+      name: 'Animal Breeder',
+      objective: 'most animals bred',
+      icon: Heart,
+      statKey: 'minecraft:custom:minecraft:animals_bred',
+      category: 'Social'
+    },
+
+    // MISCELLANEOUS
+    {
+      id: 'items_enchanted',
+      name: 'Enchanter', 
+      objective: 'most items enchanted',
+      icon: Zap,
+      statKey: 'minecraft:custom:minecraft:enchant_item',
+      category: 'Misc'
+    },
+    {
+      id: 'items_dropped',
+      name: 'Litterbug', 
+      objective: 'most items dropped',
+      icon: Gamepad2,
+      statKey: 'minecraft:custom:minecraft:drop',
+      category: 'Misc'
+    },
+    {
+      id: 'portal_travel',
+      name: 'Portal Traveler',
+      objective: 'most nether portal uses',
+      icon: Eye,
+      statKey: 'minecraft:custom:minecraft:enter_nether_portal',
+      category: 'Travel'
     }
   ];
 
+  // Rest of your existing functions
   useEffect(() => {
     loadAllData();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -180,13 +624,11 @@ const StatsPage = () => {
     setError(null);
     
     try {
-      // Load awards based on stat categories
+      // Load awards for each individual statistic
       const loadedAwards = await Promise.all(
-        statCategories.map(async (category) => {
+        individualStats.map(async (stat) => {
           try {
-            // For each category, get the top players for the primary stat
-            const primaryStat = category.statKeys[0];
-            const response = await statsAPI.getTopPlayers(primaryStat, 10);
+            const response = await statsAPI.getTopPlayers(stat.statKey, 10);
             
             if (response && response.players && response.players.length > 0) {
               const rankings: Ranking[] = response.players.map((player: ApiRanking, index: number) => ({
@@ -198,10 +640,10 @@ const StatsPage = () => {
               const winner = response.players[0];
               
               return {
-                id: category.id,
-                name: category.name,
-                objective: formatStatObjective(category.statKeys[0]),
-                icon: category.icon,
+                id: stat.id,
+                name: stat.name,
+                objective: stat.objective,
+                icon: stat.icon,
                 winner: {
                   name: winner.username,
                   value: winner.value,
@@ -211,7 +653,7 @@ const StatsPage = () => {
               };
             }
           } catch (err) {
-            console.error(`Failed to load award for ${category.name}:`, err);
+            console.error(`Failed to load award for ${stat.name}:`, err);
           }
           return null;
         })
@@ -220,12 +662,8 @@ const StatsPage = () => {
       const validAwards = loadedAwards.filter((award): award is Award => award !== null);
       setAwards(validAwards);
 
-      // Calculate hall of fame based on awards
       const hallOfFame = calculateHallOfFame(validAwards);
       setPlayers(hallOfFame);
-
-      // For now, events are empty - you can implement event loading later
-      // setEvents([]);
 
     } catch (err) {
       console.error('Failed to load stats data:', err);
@@ -233,22 +671,6 @@ const StatsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatStatObjective = (statKey: string): string => {
-    if (statKey.includes('play_time')) return 'most time played';
-    if (statKey.includes('mined')) return 'most blocks mined';
-    if (statKey.includes('used') || statKey.includes('placed')) return 'most blocks placed';
-    if (statKey.includes('walk_one_cm')) return 'longest distance traveled';
-    if (statKey.includes('deaths')) return 'fewest deaths';
-    if (statKey.includes('killed')) return 'most hostile mobs killed';
-    if (statKey.includes('diamond')) return 'most diamonds mined';
-    if (statKey.includes('fish_caught')) return 'most fish caught';
-    if (statKey.includes('sprint_one_cm')) return 'longest distance sprinted';
-    if (statKey.includes('ender_dragon')) return 'ender dragons killed';
-    if (statKey.includes('nether_portal')) return 'most nether portals used';
-    if (statKey.includes('creeper')) return 'most creepers killed';
-    return formatStatName(statKey).toLowerCase();
   };
 
   const calculateHallOfFame = (awards: Award[]): Player[] => {
@@ -268,11 +690,11 @@ const StatsPage = () => {
 
     return Object.values(playerScores)
       .map(player => ({
-        uuid: 'unknown', // We don't have UUIDs from leaderboards
+        uuid: 'unknown',
         name: player.name,
         crownScore: player.gold * 3 + player.silver * 2 + player.bronze * 1,
         lastOnline: new Date().toISOString().split('T')[0],
-        playtime: 0, // Would need to fetch individual player stats
+        playtime: 0,
         medals: {
           gold: player.gold,
           silver: player.silver,
@@ -284,10 +706,9 @@ const StatsPage = () => {
   };
 
   const formatValue = (value: number, awardId: string): string => {
-    // Use the formatStatValue function from minecraft-stats.js
-    const category = statCategories.find(cat => cat.id === awardId);
-    if (category && category.statKeys[0]) {
-      return formatStatValue(category.statKeys[0], value);
+    const stat = individualStats.find(s => s.id === awardId);
+    if (stat && stat.statKey) {
+      return formatStatValue(stat.statKey, value);
     }
     return value.toLocaleString();
   };
@@ -458,7 +879,7 @@ const StatsPage = () => {
             </div>
           </TabsContent>
 
-          {/* Hall of Fame */}
+          {/* Hall of Fame - keep existing implementation */}
           <TabsContent value="hallOfFame" className="mt-6">
             <div className="space-y-4">
               {players.map((player, index) => (
@@ -516,9 +937,8 @@ const StatsPage = () => {
             </div>
           </TabsContent>
 
-          {/* Players */}
+          {/* Players - keep existing implementation */}
           <TabsContent value="players" className="mt-6">
-            {/* Search Bar */}
             <div className="mb-8">
               <div className="relative max-w-md mx-auto">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
