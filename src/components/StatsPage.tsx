@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Crown, Clock, Search, ChevronLeft, Sword, Pickaxe, Heart, Skull, Diamond, Fish, Shield, Zap, Eye, LucideProps, Footprints, TreePine, Wrench, Building, Users, Gamepad2, Mountain, Flame, Waves, Home, Target, Beef, Apple, Gem, Compass, Anchor, Train, Rocket } from 'lucide-react';
+import { Crown, Clock, Search, ChevronLeft, Sword, Pickaxe, Heart, Skull, Diamond, Fish, Shield, Zap, Eye, LucideProps, Footprints, TreePine, Wrench, Building, Users, Gamepad2, Mountain, Flame, Waves, Home, Target, Beef, Apple, Gem, Compass, Anchor, Train, Rocket, ChevronDown, ChevronRight } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,6 +34,7 @@ interface Award {
   name: string;
   objective: string;
   icon: React.ComponentType<LucideProps>;
+  category: string;
   winner: {
     name: string;
     value: number;
@@ -65,8 +66,22 @@ const StatsPage = () => {
   const [awards, setAwards] = useState<Award[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Combat', 'Mining', 'Movement']));
 
-  // Individual statistics - each gets its own award
+   const categoryConfig: Record<string, { icon: React.ComponentType<LucideProps>; color: string }> = {
+    'Movement': { icon: Footprints, color: 'vale-blue' },
+    'Transportation': { icon: Compass, color: 'vale-blue-light' },
+    'Mining': { icon: Pickaxe, color: 'vale-green' },
+    'Combat': { icon: Sword, color: 'red-500' },
+    'Food': { icon: Apple, color: 'orange-500' },
+    'Tools': { icon: Wrench, color: 'blue-500' },
+    'Life': { icon: Heart, color: 'pink-500' },
+    'Social': { icon: Users, color: 'purple-500' },
+    'Misc': { icon: Gamepad2, color: 'gray-500' },
+    'Travel': { icon: Rocket, color: 'indigo-500' }
+   };
+
+  // Individual statistics - each gets its own individual award
   const individualStats: StatDefinition[] = [
     // MOVEMENT & EXPLORATION
     {
@@ -979,6 +994,7 @@ const StatsPage = () => {
                 name: stat.name,
                 objective: stat.objective,
                 icon: stat.icon,
+                category: stat.category,
                 winner: {
                   name: winner.username,
                   value: winner.value,
@@ -1055,6 +1071,33 @@ const StatsPage = () => {
       case 'bronze': return '🥉';
       default: return '';
     }
+  };
+
+  const groupedAwards = awards.reduce((acc, award) => {
+    if (!acc[award.category]) {
+      acc[award.category] = [];
+    }
+    acc[award.category].push(award);
+    return acc;
+  }, {} as Record<string, Award[]>);
+
+  const toggleCategory = (category: string) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(category)) {
+      newExpanded.delete(category);
+    } else {
+      newExpanded.add(category);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  // Expand/collapse all categories
+  const expandAllCategories = () => {
+    setExpandedCategories(new Set(Object.keys(groupedAwards)));
+  };
+
+  const collapseAllCategories = () => {
+    setExpandedCategories(new Set());
   };
 
   const filteredPlayers: Player[] = players.filter(player =>
@@ -1184,37 +1227,109 @@ const StatsPage = () => {
 
           {/* Awards */}
           <TabsContent value="awards" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {awards.map(award => {
-                const Icon = award.icon;
+            
+            {/* Category Controls */}
+            <div className="mb-6 flex justify-between items-center">
+              <div className="flex gap-2">
+                <Button 
+                  onClick={expandAllCategories}
+                  variant="outline"
+                  size="sm"
+                  className="text-vale-blue-light border-vale-blue-light/30 hover:bg-vale-blue-light/10"
+                >
+                  Expand All
+                </Button>
+                <Button 
+                  onClick={collapseAllCategories}
+                  variant="outline"
+                  size="sm"
+                  className="text-vale-green border-vale-green/30 hover:bg-vale-green/10"
+                >
+                  Collapse All
+                </Button>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {Object.keys(groupedAwards).length} categories • {awards.length} awards
+              </div>
+            </div>
+            
+          {/* Categorized Awards */}
+            <div className="space-y-6">
+              {Object.entries(groupedAwards).map(([category, categoryAwards]) => {
+                const isExpanded = expandedCategories.has(category);
+                const config = categoryConfig[category] || { icon: Gamepad2, color: 'gray-500' };
+                const Icon = config.icon;
+
                 return (
-                  <div
-                    key={award.id}
-                    onClick={() => setSelectedAward(award)}
-                    className="bg-[#262626] rounded-lg p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-vale-blue/25 cursor-pointer border border-transparent hover:border-vale-blue/30"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-vale-blue-light/10 flex-shrink-0">
-                        <Icon className="h-6 w-6 text-vale-blue-light" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-semibold font-ranyth truncate">{award.name}</h3>
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-base font-ranyth-mixed truncate">{award.winner.name}</span>
-                          <span className="text-base text-vale-green font-semibold whitespace-nowrap">
-                            {formatValue(award.winner.value, award.id)}
-                          </span>
+                  <div key={category} className="bg-[#161b22] rounded-lg border border-white/10">
+                    {/* Category Header */}
+                    <button
+                      onClick={() => toggleCategory(category)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors rounded-t-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`inline-flex h-10 w-10 items-center justify-center rounded-lg bg-${config.color}/10`}>
+                          <Icon className={`h-5 w-5 text-${config.color}`} />
                         </div>
-                        <p className="text-sm text-muted-foreground truncate">{award.objective}</p>
+                        <div className="text-left">
+                          <h3 className="text-xl font-bold font-ranyth">{category}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {categoryAwards.length} award{categoryAwards.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {isExpanded ? 'Hide' : 'Show'}
+                        </span>
+                        {isExpanded ? (
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Category Content */}
+                    {isExpanded && (
+                      <div className="p-4 pt-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {categoryAwards.map(award => {
+                            const AwardIcon = award.icon;
+                            return (
+                              <div
+                                key={award.id}
+                                onClick={() => setSelectedAward(award)}
+                                className="bg-[#262626] rounded-lg p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-vale-blue/25 cursor-pointer border border-transparent hover:border-vale-blue/30"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-vale-blue-light/10 flex-shrink-0">
+                                    <AwardIcon className="h-6 w-6 text-vale-blue-light" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-base font-semibold font-ranyth truncate">{award.name}</h4>
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="text-base font-ranyth-mixed truncate">{award.winner.name}</span>
+                                      <span className="text-base text-vale-green font-semibold whitespace-nowrap">
+                                        {formatValue(award.winner.value, award.id)}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground truncate">{award.objective}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </div>
           </TabsContent>
 
-          {/* Hall of Fame - keep existing implementation */}
+          {/* Hall of Fame */}
           <TabsContent value="hallOfFame" className="mt-6">
             <div className="space-y-4">
               {players.map((player, index) => (
@@ -1272,7 +1387,7 @@ const StatsPage = () => {
             </div>
           </TabsContent>
 
-          {/* Players - keep existing implementation */}
+          {/* Players */}
           <TabsContent value="players" className="mt-6">
             <div className="mb-8">
               <div className="relative max-w-md mx-auto">
