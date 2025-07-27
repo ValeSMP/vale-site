@@ -52,7 +52,8 @@ interface StatDefinition {
   name: string;
   objective: string;
   icon: React.ComponentType<LucideProps>;
-  statKey: string; // Single stat key, not array
+  statKey?: string; // Single stat key (optional)
+  statKeys?: string[] // Multiple stat keys for combined stats (optional)
   category: string;
 }
 
@@ -291,11 +292,20 @@ const StatsPage = () => {
       category: 'Mining'
     },
     {
-      id: 'wood_mined',
+      id: 'lumberjack_combined',
       name: 'Lumberjack', 
       objective: 'most wood blocks mined',
       icon: TreePine,
-      statKey: 'minecraft:mined:minecraft:oak_log',
+      statKeys: ['minecraft:mined:minecraft:oak_log',
+      'minecraft:mined:minecraft:birch_log',
+      'minecraft:mined:minecraft:spruce_log',
+      'minecraft:mined:minecraft:jungle_log',
+      'minecraft:mined:minecraft:acacia_log',
+      'minecraft:mined:minecraft:dark_oak_log',
+      'minecraft:mined:minecraft:cherry_log',
+      'minecraft:mined:minecraft:mangrove_log',
+      'minecraft:mined:minecraft:pale_oak_log',
+      'minecraft:mined:minecraft:bamboo'],
       category: 'Mining'
     },
     {
@@ -303,7 +313,8 @@ const StatsPage = () => {
       name: 'Obsidian Breaker', 
       objective: 'most obsidian mined',
       icon: Shield,
-      statKey: 'minecraft:mined:minecraft:obsidian',
+      statKeys: ['minecraft:mined:minecraft:obsidian',
+        'minecraft:mined:minecraft:crying_obsidian'],
       category: 'Mining'
     },
 
@@ -324,210 +335,543 @@ const StatsPage = () => {
       statKey: 'minecraft:killed:minecraft:warden',
       category: 'Combat'
     },
+    {
+      id: 'withers_killed',
+      name: 'Withering Heights',
+      objective: 'most withers killed',
+      icon: Skull,
+      statKey: 'minecraft:killed:minecraft:wither',
+      category: 'Combat'
+    },
 
     // COMBAT - MONSTERS
-    {
-      id: 'creepers_killed',
+    {id: 'creepers_killed',
       name: 'Explosive Expert', 
       objective: 'most creepers killed',
       icon: Target,
       statKey: 'minecraft:killed:minecraft:creeper',
       category: 'Combat'
     },
-    {
-      id: 'zombies_killed',
+    {id: 'zombies_killed',
       name: 'Zombie Exterminator', 
       objective: 'most zombies killed',
       icon: Skull,
-      statKey: 'minecraft:killed:minecraft:zombie',
+      statKeys: ['minecraft:killed:minecraft:zombie','minecraft:killed:minecraft:zombie_villager'],
       category: 'Combat'
     },
-    {
-      id: 'skeletons_killed',
+    {id: 'skeletons_killed',
       name: 'Bone Collector', 
-      objective: 'most skeletons killed',
+      objective: 'most skeletons and strays killed',
       icon: Skull,
-      statKey: 'minecraft:killed:minecraft:skeleton',
+      statKeys: ['minecraft:killed:minecraft:skeleton', 'minecraft:killed:minecraft:stray'],
       category: 'Combat'
     },
-    {
-      id: 'spiders_killed',
+    {id: 'spiders_killed',
       name: 'Arachnophobe', 
       objective: 'most spiders killed',
       icon: Target,
-      statKey: 'minecraft:killed:minecraft:spider',
+      statKeys: ['minecraft:killed:minecraft:spider', 'minecraft:killed:minecraft:cave_spider'],
       category: 'Combat'
     },
-    {
-      id: 'endermen_killed',
+    {id: 'endermen_killed',
       name: 'Void Warrior', 
       objective: 'most endermen killed',
       icon: Eye,
       statKey: 'minecraft:killed:minecraft:enderman',
       category: 'Combat'
     },
-    {
-      id: 'blazes_killed',
+    {id: 'blazes_killed',
       name: 'Fire Fighter', 
       objective: 'most blazes killed',
       icon: Flame,
       statKey: 'minecraft:killed:minecraft:blaze',
       category: 'Combat'
     },
-    {
-      id: 'ghasts_killed',
+    {id: 'ghasts_killed',
       name: 'Protector of the Skies', 
       objective: 'most ghasts killed',
       icon: Target,
-      statKey: 'minecraft:killed:minecraft:ghast',
+      statKeys: ['minecraft:killed:minecraft:ghast', 'minecraft:killed:minecraft:happy_ghast'],
+      category: 'Combat'
+    },
+    {id: 'raiders_killed',
+      name: 'Protector of the Village', 
+      objective: 'most raid mobs killed',
+      icon: Target,
+      statKeys: [
+        'minecraft:killed:minecraft:pillager',
+        'minecraft:killed:minecraft:vindicator',
+        'minecraft:killed:minecraft:evoker',
+        'minecraft:killed:minecraft:ravager',
+        'minecraft:killed:minecraft:witch',
+        'minecraft:killed:minecraft:vex'
+      ],
+      category: 'Combat'
+    },
+    {id: 'creaking_killed',
+      name: 'No Heart', 
+      objective: 'most creaking killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:creaking',
+      category: 'Combat'
+    },
+    {id: 'breeze_killed',
+      name: 'Easy Breezy', 
+      objective: 'most breeze killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:breeze',
+      category: 'Combat'
+    },
+    {id: 'bogged_killed',
+      name: 'Bogged Down', 
+      objective: 'most bogged killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:bogged',
+      category: 'Combat'
+    },
+    {id: 'guardians_killed',
+      name: 'Guardian of the Seas', 
+      objective: 'most guardians killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:guardian',
+      category: 'Combat'
+    },
+    {id: 'arthropods_killed',
+      name: 'Arthropod Annihilator', 
+      objective: 'most silverfish and endermites killed',
+      icon: Target,
+      statKeys: ['minecraft:killed:minecraft:endermite','minecraft:killed:minecraft:silverfish'],
+      category: 'Combat'
+    },
+    {id: 'hoglins_killed',
+      name: 'Hoglin Hater', 
+      objective: 'most hoglins killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:hoglins',
+      category: 'Combat'
+    },
+    {id: 'husks_killed',
+      name: 'Husky', 
+      objective: 'most husks killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:husk',
+      category: 'Combat'
+    },
+    {id: 'magma_cubes_killed',
+      name: 'Magma-tastic', 
+      objective: 'most magma cubes killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:magma_cube',
+      category: 'Combat'
+    },
+    {id: 'piglins_killed',
+      name: 'Brutal Bastion Batterer', 
+      objective: 'most piglin and piglin brutes killed',
+      icon: Target,
+      statKeys: ['minecraft:killed:minecraft:piglin', 'minecraft:killed:minecaft:piglin_brute'],
+      category: 'Combat'
+    },
+    {id: 'phantoms_killed',
+      name: 'I Blame Mumbo Jumbo', 
+      objective: 'most phantoms killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:phantom',
+      category: 'Combat'
+    },
+    {id: 'shulkers_killed',
+      name: 'Simple Storage Solution', 
+      objective: 'most shulkers killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:shulker',
+      category: 'Combat'
+    },
+    {id: 'slimes_killed',
+      name: 'Slimey Steve', 
+      objective: 'most slimes killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:slime',
+      category: 'Combat'
+    },
+    {id: 'wither_skeletons_killed',
+      name: 'Skull Hunter', 
+      objective: 'most wither skeletons killed',
+      icon: Target,
+      statKey: 'minecraft:killed:minecraft:wither_skeleton',
       category: 'Combat'
     },
 
     // COMBAT - ANIMALS
-    {
-      id: 'cows_killed',
+    {id: 'allays_killed',
+      name: 'Anti-Allay',
+      objective: 'most allays killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:allay',
+      category: 'Combat'
+    },
+    {id: 'armadillos_killed',
+      name: 'Armadillo Attacker',
+      objective: 'most armadillos killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:armadillo',
+      category: 'Combat'
+    },
+    {id: 'axolotls_killed',
+      name: 'Axed-a-lot-l',
+      objective: 'most axolotls killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:axolotl',
+      category: 'Combat'
+    },
+    {id: 'bats_killed',
+      name: 'Bat-Shit Crazy',
+      objective: 'most bats killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:bat',
+      category: 'Combat'
+    },
+    {id: 'bees_killed',
+      name: 'Bee-stie', 
+      objective: 'most bees killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:bee',
+      category: 'Combat'
+    },
+    {id: 'dolphins_killed',
+      name: 'Big Brained Killer', 
+      objective: 'most dolphins killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:dolphin',
+      category: 'Combat'
+    },
+    {id: 'camels_killed',
+      name: 'Hump Day',
+      objective: 'most camels killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:camel',
+      category: 'Combat'
+    },
+    {id: 'cats_killed',
+      name: 'Cat Fighter',
+      objective: 'most cats killed',
+      icon: Beef,
+      statKeys: ['minecraft:killed:minecraft:cat', 'minecraft:killed:minecraft:ocelot'],
+      category: 'Combat'
+    },
+    {id: 'mooshrooms_killed',
+      name: 'Extinction Enabler',
+      objective: 'most mooshrooms killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:mooshroom',
+      category: 'Combat'
+    },
+    {id: 'cows_killed',
       name: 'Beefeater',
       objective: 'most cows killed',
       icon: Beef,
       statKey: 'minecraft:killed:minecraft:cow',
       category: 'Combat'
     },
-    {
-      id: 'pigs_killed',
+    {id: 'cows_killed',
+      name: 'Beefeater',
+      objective: 'most cows killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:cow',
+      category: 'Combat'
+    },
+    {id: 'pigs_killed',
       name: 'Bacon Maker',
       objective: 'most pigs killed',
       icon: Beef,
       statKey: 'minecraft:killed:minecraft:pig',
       category: 'Combat'
     },
-    {
-      id: 'chickens_killed',
+    {id: 'chickens_killed',
       name: 'LA LA LA LAVA',
       objective: 'most chickens killed',
       icon: Beef,
       statKey: 'minecraft:killed:minecraft:chicken',
       category: 'Combat'
     },
-    {
-      id: 'sheep_killed',
+    {id: 'sheep_killed',
       name: 'Sheep Hater', 
       objective: 'most sheep killed',
       icon: Beef,
       statKey: 'minecraft:killed:minecraft:sheep',
       category: 'Combat'
     },
+    {id: 'donkeys_killed',
+      name: 'YOU DONKEY', 
+      objective: 'most donkeys killed',
+      icon: Beef,
+      statKeys: ['minecraft:killed:minecraft:donkey','minecraft:killed:minecraft:mule'],
+      category: 'Combat'
+    },
+    {id: 'foxes_killed',
+      name: 'Foxy Foe', 
+      objective: 'most foxes killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:fox',
+      category: 'Combat'
+    },
+    {id: 'goats_killed',
+      name: 'G.O.A.T', 
+      objective: 'most goats killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:goat',
+      category: 'Combat'
+    },
+    {id: 'llamas_killed',
+      name: 'No Traders Here Please', 
+      objective: 'most llamas killed',
+      icon: Beef,
+      statKeys: ['minecraft:killed:minecraft:llama','minecraft:killed:minecraft:trader_llama'],
+      category: 'Combat'
+    },
+    {id: 'pandas_killed',
+      name: 'How could you?', 
+      objective: 'most pandas killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:panda',
+      category: 'Combat'
+    },
+    {id: 'polar_bears_killed',
+      name: 'Arctic Annoyance', 
+      objective: 'most polar bears killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:polar_bear',
+      category: 'Combat'
+    },
+    {id: 'wolves_killed',
+      name: 'Wolverine', 
+      objective: 'most wolves killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:wolf',
+      category: 'Combat'
+    },
+    {id: 'frog_killed',
+      name: 'Kermit\'s Nemesis', 
+      objective: 'most frogs killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:frog',
+      category: 'Combat'
+    },
+    {id: 'squid_killed',
+      name: 'Calamari Connoisseur', 
+      objective: 'most squid killed',
+      icon: Beef,
+      statKeys: ['minecraft:killed:minecraft:squid', 'minecraft:killed:minecraft:glow_squid'],
+      category: 'Combat'
+    },
+    {id: 'horse_killed',
+      name: 'Smallishbeans?', 
+      objective: 'most horses killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:horse',
+      category: 'Combat'
+    },
+    {id: 'parrot_killed',
+      name: 'Parrot Party', 
+      objective: 'most parrots killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:parrot',
+      category: 'Combat'
+    },
+    {id: 'rabbit_killed',
+      name: 'It\'s Wabbit Hunting Season', 
+      objective: 'most rabbits killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:rabbit',
+      category: 'Combat'
+    },
+    {id: 'fish_killed',
+      name: 'Pescatarian Party', 
+      objective: 'most fish killed',
+      icon: Beef,
+      statKeys: ['minecraft:killed:minecraft:cod', 'minecraft:killed:minecraft:salmon', 'minecraft:killed:minecraft:tropical_fish', 'minecraft:killed:minecraft:pufferfish','minecraft:killed:minecraft:tadpole'],
+      category: 'Combat'
+    },
+    {id: 'traders_killed',
+      name: 'No Cold Callers', 
+      objective: 'most wandering traders killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:wandering_trader',
+      category: 'Combat'
+    },
+    {id: 'rabbit_killed',
+      name: 'It\'s Wabbit Hunting Season', 
+      objective: 'most rabbits killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:rabbit',
+      category: 'Combat'
+    },
+    {id: 'sniffers_killed',
+      name: 'Sniff-er, Barely Know Her', 
+      objective: 'most sniffers killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:sniffer',
+      category: 'Combat'
+    },
+    {id: 'striders_killed',
+      name: 'Striding to Glory', 
+      objective: 'most striders killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:strider',
+      category: 'Combat'
+    },
+    {id: 'turtles_killed',
+      name: 'Turtley Intentional', 
+      objective: 'most turtles killed',
+      icon: Beef,
+      statKey: 'minecraft:killed:minecraft:turtle',
+      category: 'Combat'
+    },
 
     // COMBAT - PERFORMANCE
-    {
-      id: 'total_mobs_killed',
+    {id: 'total_mobs_killed',
       name: 'Monster Hunter', 
       objective: 'most mobs killed',
       icon: Sword,
       statKey: 'minecraft:custom:minecraft:mob_kills',
       category: 'Combat'
     },
-    {
-      id: 'damage_dealt',
+    {id: 'damage_dealt',
       name: 'Damage Dealer', 
       objective: 'most damage dealt',
       icon: Sword,
       statKey: 'minecraft:custom:minecraft:damage_dealt',
       category: 'Combat'
     },
-    {
-      id: 'damage_taken',
+    {id: 'damage_taken',
       name: 'Damage Sponge', 
       objective: 'most damage taken',
       icon: Shield,
       statKey: 'minecraft:custom:minecraft:damage_taken',
       category: 'Combat'
     },
+    {id: 'damage_blocked',
+      name: 'Damage Blocker', 
+      objective: 'most damage blocked with a shield',
+      icon: Shield,
+      statKey: 'minecraft:custom:minecraft:damage_blocked_by_shield',
+      category: 'Combat'
+    },
+    {id: 'player_kills',
+      name: 'PVP MVP', 
+      objective: 'most CONSENSUAL PvP kills',
+      icon: Shield,
+      statKey: 'minecraft:custom:minecraft:player_kills',
+      category: 'Combat'
+    },
+    {id: 'targets_hit',
+      name: 'Target Practice', 
+      objective: 'most targets hit',
+      icon: Shield,
+      statKey: 'minecraft:custom:minecraft:target_hit',
+      category: 'Combat'
+    },
 
     // FOOD & CONSUMPTION
-    {
-      id: 'raw_beef_eaten',
-      name: 'Raw Beef Enthusiast', 
-      objective: 'most raw beef consumed',
+    { id: 'keto',
+      name: 'Keto King',
+      objective: 'most cooked meat consumed',
       icon: Beef,
-      statKey: 'minecraft:used:minecraft:beef',
+      statKeys: [
+        'minecraft:used:minecraft:cooked_beef',
+        'minecraft:used:minecraft:cooked_porkchop',
+        'minecraft:used:minecraft:cooked_chicken',
+        'minecraft:used:minecraft:cooked_mutton',
+        'minecraft:used:minecraft:cooked_rabbit',
+        'minecraft:used:minecraft:cooked_salmon',
+        'minecraft:used:minecraft:cooked_cod'
+      ],
       category: 'Food'
     },
-    {
-      id: 'cooked_beef_eaten',
-      name: 'Steak Lover', 
-      objective: 'most cooked beef consumed',
-      icon: Beef,
-      statKey: 'minecraft:used:minecraft:cooked_beef',
-      category: 'Food'
+    {id: 'carnivore',
+      name: 'Carnivore', 
+      objective: 'most damage taken',
+      icon: Shield,
+      statKeys: [
+        'minecraft:used:minecraft:beef',
+        'minecraft:used:minecraft:porkchop',
+        'minecraft:used:minecraft:chicken',
+        'minecraft:used:minecraft:mutton',
+        'minecraft:used:minecraft:rabbit',
+        'minecraft:used:minecraft:salmon',
+        'minecraft:used:minecraft:cod'
+      ],
+      category: 'Combat'
     },
-    {
-      id: 'bread_eaten',
-      name: 'Bread Consumer', 
-      objective: 'most bread consumed',
+    { id: 'gluten_tolerant',
+      name: 'Gluten Tolerant', 
+      objective: 'most glutenous foods consumed',
       icon: Apple,
-      statKey: 'minecraft:used:minecraft:bread',
+      statKeys: [
+        'minecraft:used:minecraft:bread',
+        'minecraft:used:minecraft:cookie'
+      ],
       category: 'Food'
     },
-    {
-      id: 'apples_eaten',
-      name: 'Apple Muncher', 
-      objective: 'most apples consumed',
+    { id: 'vegetarian',
+      name: 'One of your Five a Day',
+      objective: 'most fruit/veg consumed',
       icon: Apple,
-      statKey: 'minecraft:used:minecraft:apple',
+      statKeys: [
+        'minecraft:used:minecraft:apple',
+        'minecraft:used:minecraft:carrot',
+        'minecraft:used:minecraft:potato',
+        'minecraft:used:minecraft:baked_potato',
+        'minecraft:used:minecraft:melon_slice',
+        'minecraft:used:minecraft:golden_apple',
+        'minecraft:used:minecraft:enchanted_golden_apple'
+      ],
       category: 'Food'
     },
-    {
-      id: 'fish_caught',
-      name: 'Fishing Champion', 
+    { id: 'fish_caught',
+      name: 'Gone Fishin\'', 
       objective: 'most fish caught',
       icon: Fish,
       statKey: 'minecraft:custom:minecraft:fish_caught',
       category: 'Food'
     },
+    { id: 'sus_stew',
+      name: 'Sus', 
+      objective: 'most sus stew consumed',
+      icon: Apple,
+      statKey: 
+        'minecraft:used:minecraft:suspicious_stew',
+      category: 'Food'
+    },
 
     // TOOLS & WEAPONS
-    {
-      id: 'bow_used',
+    { id: 'bow_used',
       name: 'Archer', 
       objective: 'most bow shots',
       icon: Target,
-      statKey: 'minecraft:used:minecraft:bow',
+      statKeys: ['minecraft:used:minecraft:bow','minecraft:used:minecraft:crossbow'],
       category: 'Tools'
     },
-    {
-      id: 'crossbow_used',
-      name: 'Marksman', 
-      objective: 'most crossbow shots',
-      icon: Target,
-      statKey: 'minecraft:used:minecraft:crossbow',
-      category: 'Tools'
-    },
-    {
-      id: 'flint_steel_used',
+    { id: 'flint_steel_used',
       name: 'Fire Starter', 
       objective: 'most flint and steel uses',
       icon: Flame,
       statKey: 'minecraft:used:minecraft:flint_and_steel',
       category: 'Tools'
     },
-    {
-      id: 'shears_used',
+    { id: 'shears_used',
       name: 'Shepherd', 
       objective: 'most shears used',
       icon: Wrench,
       statKey: 'minecraft:used:minecraft:shears',
       category: 'Tools'
     },
-    {
-      id: 'ender_pearls_used',
+    { id: 'ender_pearls_used',
       name: 'Teleporter',
       objective: 'most ender pearls thrown',
       icon: Eye,
       statKey: 'minecraft:used:minecraft:ender_pearl',
       category: 'Tools'
     },
-    {
-      id: 'totem_used',
+    { id: 'totem_used',
       name: 'Death Defying',
       objective: 'most totems of undying used',
       icon: Heart,
@@ -536,32 +880,28 @@ const StatsPage = () => {
     },
 
     // LIFE MANAGEMENT
-    {
-      id: 'playtime',
+    { id: 'playtime',
       name: 'Dedicated', 
       objective: 'most time played',
       icon: Clock,
       statKey: 'minecraft:custom:minecraft:play_time',
       category: 'Life'
     },
-    {
-      id: 'deaths',
+    { id: 'deaths',
       name: 'Death Count',
       objective: 'most deaths',
       icon: Skull,
       statKey: 'minecraft:custom:minecraft:deaths',
       category: 'Life'
     },
-    {
-      id: 'time_since_death',
+    { id: 'time_since_death',
       name: 'Survival Streak', 
       objective: 'longest survival streak',
       icon: Heart,
       statKey: 'minecraft:custom:minecraft:time_since_death',
       category: 'Life'
     },
-    {
-      id: 'sleep_count',
+    { id: 'sleep_count',
       name: 'Well Rested',
       objective: 'most times slept in bed',
       icon: Home,
@@ -570,16 +910,14 @@ const StatsPage = () => {
     },
 
     // SOCIAL & INTERACTION
-    {
-      id: 'villager_trades',
+    { id: 'villager_trades',
       name: 'Merchant', 
       objective: 'most villager trades',
       icon: Users,
       statKey: 'minecraft:custom:minecraft:traded_with_villager',
       category: 'Social'
     },
-    {
-      id: 'animals_bred',
+    { id: 'animals_bred',
       name: 'Animal Breeder',
       objective: 'most animals bred',
       icon: Heart,
@@ -588,24 +926,21 @@ const StatsPage = () => {
     },
 
     // MISCELLANEOUS
-    {
-      id: 'items_enchanted',
+    { id: 'items_enchanted',
       name: 'Enchanter', 
       objective: 'most items enchanted',
       icon: Zap,
       statKey: 'minecraft:custom:minecraft:enchant_item',
       category: 'Misc'
     },
-    {
-      id: 'items_dropped',
+    { id: 'items_dropped',
       name: 'Litterbug', 
       objective: 'most items dropped',
       icon: Gamepad2,
       statKey: 'minecraft:custom:minecraft:drop',
       category: 'Misc'
     },
-    {
-      id: 'portal_travel',
+    { id: 'portal_travel',
       name: 'Portal Traveler',
       objective: 'most nether portal uses',
       icon: Eye,
