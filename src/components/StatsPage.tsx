@@ -66,13 +66,12 @@ const StatsPage = () => {
   const [awards, setAwards] = useState<Award[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Combat', 'Mining', 'Movement']));
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Mining','Combat','Movement']));
 
    const categoryConfig: Record<string, { icon: React.ComponentType<LucideProps>; color: string }> = {
-    'Movement': { icon: Footprints, color: 'vale-blue' },
-    'Transportation': { icon: Compass, color: 'vale-blue-light' },
     'Mining': { icon: Pickaxe, color: 'vale-green' },
     'Combat': { icon: Sword, color: 'red-500' },
+    'Movement': { icon: Footprints, color: 'vale-blue' },
     'Food': { icon: Apple, color: 'orange-500' },
     'Tools': { icon: Wrench, color: 'blue-500' },
     'Life': { icon: Heart, color: 'pink-500' },
@@ -164,15 +163,13 @@ const StatsPage = () => {
       statKey: 'minecraft:custom:minecraft:walk_on_water_one_cm',
       category: 'Movement'
     },
-
-    // TRANSPORTATION
     {
       id: 'distance_horse',
       name: 'Cavalry Expert',
       objective: 'longest distance traveled by horse',
       icon: Compass,
       statKey: 'minecraft:custom:minecraft:horse_one_cm',
-      category: 'Transportation'
+      category: 'Movement'
     },
     {
       id: 'distance_boat',
@@ -180,7 +177,7 @@ const StatsPage = () => {
       objective: 'longest distance traveled by boat',
       icon: Anchor,
       statKey: 'minecraft:custom:minecraft:boat_one_cm',
-      category: 'Transportation'
+      category: 'Movement'
     },
     {
       id: 'distance_minecart',
@@ -188,7 +185,7 @@ const StatsPage = () => {
       objective: 'longest distance traveled by minecart',
       icon: Train,
       statKey: 'minecraft:custom:minecraft:minecart_one_cm',
-      category: 'Transportation'
+      category: 'Movement'
     },
     {
       id: 'distance_pig',
@@ -196,7 +193,7 @@ const StatsPage = () => {
       objective: 'longest distance traveled by pig',
       icon: Heart,
       statKey: 'minecraft:custom:minecraft:pig_one_cm',
-      category: 'Transportation'
+      category: 'Movement'
     },
     {
       id: 'distance_strider',
@@ -204,8 +201,24 @@ const StatsPage = () => {
       objective: 'longest distance traveled by strider',
       icon: Flame,
       statKey: 'minecraft:custom:minecraft:strider_one_cm',
-      category: 'Transportation'
+      category: 'Movement'
     },
+    {
+      id: 'distance_ghast',
+      name: 'Happiest Pilot Around', 
+      objective: 'longest distance traveled by happy ghast',
+      icon: Flame,
+      statKey: 'minecraft:custom:minecraft:happy_ghast_one_cm',
+      category: 'Movement'
+    },
+    { id: 'portal_travel',
+      name: 'Portal Traveler',
+      objective: 'most nether portal uses',
+      icon: Eye,
+      statKey: 'minecraft:custom:minecraft:enter_nether_portal',
+      category: 'Movement'
+    },
+    
 
     // MINING - PRECIOUS MATERIALS
     {
@@ -461,7 +474,7 @@ const StatsPage = () => {
       name: 'Hoglin Hater', 
       objective: 'most hoglins killed',
       icon: Target,
-      statKey: 'minecraft:killed:minecraft:hoglins',
+      statKey: 'minecraft:killed:minecraft:hoglin',
       category: 'Combat'
     },
     {id: 'husks_killed',
@@ -873,74 +886,63 @@ const StatsPage = () => {
       category: 'Tools'
     },
 
-    // LIFE MANAGEMENT
+    // GENERAL
     { id: 'playtime',
       name: 'Dedicated', 
       objective: 'most time played',
       icon: Clock,
       statKey: 'minecraft:custom:minecraft:play_time',
-      category: 'Life'
+      category: 'General'
     },
     { id: 'deaths',
       name: 'Death Count',
       objective: 'most deaths',
       icon: Skull,
       statKey: 'minecraft:custom:minecraft:deaths',
-      category: 'Life'
+      category: 'General'
     },
     { id: 'time_since_death',
       name: 'Survival Streak', 
       objective: 'longest survival streak',
       icon: Heart,
       statKey: 'minecraft:custom:minecraft:time_since_death',
-      category: 'Life'
+      category: 'General'
     },
     { id: 'sleep_count',
       name: 'Well Rested',
       objective: 'most times slept in bed',
       icon: Home,
       statKey: 'minecraft:custom:minecraft:sleep_in_bed',
-      category: 'Life'
+      category: 'General'
     },
-
-    // SOCIAL & INTERACTION
     { id: 'villager_trades',
       name: 'Merchant', 
       objective: 'most villager trades',
       icon: Users,
       statKey: 'minecraft:custom:minecraft:traded_with_villager',
-      category: 'Social'
+      category: 'General'
     },
     { id: 'animals_bred',
       name: 'Animal Breeder',
       objective: 'most animals bred',
       icon: Heart,
       statKey: 'minecraft:custom:minecraft:animals_bred',
-      category: 'Social'
+      category: 'General'
     },
-
-    // MISCELLANEOUS
     { id: 'items_enchanted',
       name: 'Enchanter', 
       objective: 'most items enchanted',
       icon: Zap,
       statKey: 'minecraft:custom:minecraft:enchant_item',
-      category: 'Misc'
+      category: 'General'
     },
     { id: 'items_dropped',
       name: 'Litterbug', 
       objective: 'most items dropped',
       icon: Gamepad2,
       statKey: 'minecraft:custom:minecraft:drop',
-      category: 'Misc'
+      category: 'General'
     },
-    { id: 'portal_travel',
-      name: 'Portal Traveler',
-      objective: 'most nether portal uses',
-      icon: Eye,
-      statKey: 'minecraft:custom:minecraft:enter_nether_portal',
-      category: 'Travel'
-    }
   ];
 
   // Rest of your existing functions
