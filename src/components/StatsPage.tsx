@@ -801,8 +801,8 @@ const StatsPage = () => {
     },
     {id: 'carnivore',
       name: 'Carnivore', 
-      objective: 'most damage taken',
-      icon: Shield,
+      objective: 'most raw meat consumed',
+      icon: Beef,
       statKeys: [
         'minecraft:used:minecraft:beef',
         'minecraft:used:minecraft:porkchop',
