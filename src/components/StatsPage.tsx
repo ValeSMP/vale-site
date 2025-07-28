@@ -1011,7 +1011,26 @@ const loadAllData = async () => {
         .sort((a, b) => b.value - a.value)
         .slice(0, 10);
 
-      if (sortedPlayers.length === 0) return null;
+      if (sortedPlayers.length === 0) {
+        // Placeholder for stats with no data
+        return {
+          id: stat.id,
+          name: stat.name,
+          objective: stat.objective,
+          icon: stat.icon,
+          category: stat.category,
+          winner: {
+            name: 'Nobody',
+            value: 0,
+            uuid: 'nobody'
+          },
+          allRankings: [{
+            player: 'Nobody',
+            value: 0,
+            medal: undefined
+          }]
+        } as Award;
+      }
 
       const rankings: Ranking[] = sortedPlayers.map((player, index) => ({
         player: player.username,
@@ -1321,18 +1340,26 @@ const loadAllData = async () => {
                               <div
                                 key={award.id}
                                 onClick={() => setSelectedAward(award)}
-                                className="bg-[#262626] rounded-lg p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-vale-blue/25 cursor-pointer border border-transparent hover:border-vale-blue/30"
+                                className={`bg-[#262626] rounded-lg p-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-vale-blue/25 cursor-pointer border border-transparent hover:border-vale-blue/30 ${
+                                  award.winner.name === 'Nobody' ? 'opacity-50 cursor-default' : ''
+                                }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-vale-blue-light/10 flex-shrink-0">
-                                    <AwardIcon className="h-6 w-6 text-vale-blue-light" />
+                                    <AwardIcon className={`h-6 w-6 ${award.winner.name === 'Nobody' ? 'text-gray-500' : 'text-vale-blue-light'}`} />
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <h4 className="text-base font-semibold font-ranyth truncate">{award.name}</h4>
                                     <div className="flex items-center justify-between gap-2">
-                                      <span className="text-base font-ranyth-mixed truncate">{award.winner.name}</span>
-                                      <span className="text-base text-vale-green font-semibold whitespace-nowrap">
-                                        {formatValue(award.winner.value, award.id)}
+                                      <span className={`text-base font-ranyth-mixed truncate ${
+                                        award.winner.name === 'Nobody' ? 'text-gray-500 italic' : ''
+                                      }`}>
+                                        {award.winner.name}
+                                      </span>
+                                      <span className={`text-base font-semibold whitespace-nowrap ${
+                                        award.winner.name === 'Nobody' ? 'text-gray-500' : 'text-vale-green'
+                                      }`}>
+                                        {award.winner.name === 'Nobody' ? '0' : formatValue(award.winner.value, award.id)}
                                       </span>
                                     </div>
                                     <p className="text-sm text-muted-foreground truncate">{award.objective}</p>
