@@ -74,11 +74,17 @@ const StatsPage = () => {
     'Movement': { icon: Footprints, color: 'vale-blue' },
     'Food': { icon: Apple, color: 'orange-500' },
     'Tools': { icon: Wrench, color: 'blue-500' },
-    'Life': { icon: Heart, color: 'pink-500' },
-    'Social': { icon: Users, color: 'purple-500' },
-    'Misc': { icon: Gamepad2, color: 'gray-500' },
-    'Travel': { icon: Rocket, color: 'indigo-500' }
+    'General': { icon: Heart, color: 'pink-500' }
    };
+
+   const categoryOrder = [
+    'General',
+    'Combat', 
+    'Mining',
+    'Movement',
+    'Tools',
+    'Food',
+  ];
 
   // Individual statistics - each gets its own individual award
   const individualStats: StatDefinition[] = [
@@ -1297,12 +1303,15 @@ const loadAllData = async () => {
             
           {/* Categorized Awards */}
             <div className="space-y-6">
-              {Object.entries(groupedAwards).map(([category, categoryAwards]) => {
-                const isExpanded = expandedCategories.has(category);
-                const config = categoryConfig[category] || { icon: Gamepad2, color: 'gray-500' };
-                const Icon = config.icon;
+              {categoryOrder
+                .filter(category => groupedAwards[category]) // Only show categories that have awards
+                .map(category => {
+                  const categoryAwards = groupedAwards[category];
+                  const isExpanded = expandedCategories.has(category);
+                  const config = categoryConfig[category] || { icon: Gamepad2, color: 'gray-500' };
+                  const Icon = config.icon;
 
-                return (
+                  return (
                   <div key={category} className="bg-[#161b22] rounded-lg border border-white/10">
                     {/* Category Header */}
                     <button
