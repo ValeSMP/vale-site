@@ -66,7 +66,7 @@ const StatsPage = () => {
   const [awards, setAwards] = useState<Award[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['Mining','Combat','Movement']));
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['General','Combat','Mining', 'Movement']));
 
    const categoryConfig: Record<string, { icon: React.ComponentType<LucideProps>; color: string }> = {
     'Mining': { icon: Pickaxe, color: 'vale-green' },
