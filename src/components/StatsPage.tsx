@@ -948,60 +948,102 @@ const StatsPage = () => {
     loadAllData();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadAllData = async () => {
-    setLoading(true);
-    setError(null);
+const loadAllData = async () => {
+  setLoading(true);
+  setError(null);
+  
+  try {
     
-    try {
-      // Load awards for each individual statistic
-      const loadedAwards = await Promise.all(
-        individualStats.map(async (stat) => {
-          try {
-            const response = await statsAPI.getTopPlayers(stat.statKey, 10);
-            
-            if (response && response.players && response.players.length > 0) {
-              const rankings: Ranking[] = response.players.map((player: ApiRanking, index: number) => ({
-                player: player.username,
-                value: player.value,
-                medal: index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : undefined
-              }));
+    const allStatKeys = new Set<string>();
+    individualStats.forEach(stat => {
+      if (stat.statKey) {
+        allStatKeys.add(stat.statKey);
+      }
+      if (stat.statKeys) {
+        stat.statKeys.forEach(key => allStatKeys.add(key));
+      }
+    });
 
-              const winner = response.players[0];
-              
-              return {
-                id: stat.id,
-                name: stat.name,
-                objective: stat.objective,
-                icon: stat.icon,
-                category: stat.category,
-                winner: {
-                  name: winner.username,
-                  value: winner.value,
-                  uuid: winner.uuid || 'unknown'
-                },
-                allRankings: rankings
-              };
-            }
-          } catch (err) {
-            console.error(`Failed to load award for ${stat.name}:`, err);
+    // Fetch data for all unique stat keys
+    const statData: { [key: string]: ApiRanking[] } = {};
+    await Promise.all(
+      Array.from(allStatKeys).map(async (statKey) => {
+        try {
+          const response = await statsAPI.getTopPlayers(statKey, 50);
+          if (response && response.players) {
+            statData[statKey] = response.players;
           }
-          return null;
-        })
-      );
+        } catch (err) {
+          console.warn(`Failed to load stat ${statKey}:`, err);
+          statData[statKey] = [];
+        }
+      })
+    );
 
-      const validAwards = loadedAwards.filter((award): award is Award => award !== null);
-      setAwards(validAwards);
+    const loadedAwards: Award[] = individualStats.map(stat => {
+      const combinedPlayerData: { [username: string]: number } = {};
 
-      const hallOfFame = calculateHallOfFame(validAwards);
-      setPlayers(hallOfFame);
+      if (stat.statKeys) {
+        // Combined stat: sum values from multiple keys
+        stat.statKeys.forEach(key => {
+          const players = statData[key] || [];
+          players.forEach(player => {
+            if (!combinedPlayerData[player.username]) {
+              combinedPlayerData[player.username] = 0;
+            }
+            combinedPlayerData[player.username] += player.value;
+          });
+        });
+      } else if (stat.statKey) {
+        // Single stat: use values directly
+        const players = statData[stat.statKey] || [];
+        players.forEach(player => {
+          combinedPlayerData[player.username] = player.value;
+        });
+      } else {
+        // Neither: default to empty (will be filtered out)
+        return null;
+      }
 
-    } catch (err) {
-      console.error('Failed to load stats data:', err);
-      setError('Failed to load statistics. Please check if the stats API is running.');
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Sort players and create rankings
+      const sortedPlayers = Object.entries(combinedPlayerData)
+        .map(([username, value]) => ({ username, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 10);
+
+      if (sortedPlayers.length === 0) return null;
+
+      const rankings: Ranking[] = sortedPlayers.map((player, index) => ({
+        player: player.username,
+        value: player.value,
+        medal: index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : undefined
+      }));
+
+      return {
+        id: stat.id,
+        name: stat.name,
+        objective: stat.objective,
+        icon: stat.icon,
+        category: stat.category,
+        winner: {
+          name: sortedPlayers[0].username,
+          value: sortedPlayers[0].value,
+          uuid: 'unknown'
+        },
+        allRankings: rankings
+      } as Award;
+    }).filter((award): award is Award => award !== null);
+
+    setAwards(loadedAwards);
+    setPlayers(calculateHallOfFame(loadedAwards));
+
+  } catch (err) {
+    console.error('Failed to load stats data:', err);
+    setError('Failed to load statistics. Please check if the stats API is running.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const calculateHallOfFame = (awards: Award[]): Player[] => {
     const playerScores: { [key: string]: { name: string; gold: number; silver: number; bronze: number; } } = {};
