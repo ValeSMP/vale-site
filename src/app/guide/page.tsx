@@ -234,22 +234,21 @@ If you encounter any issues:
 ## OPT OUT
 By default, all players **will** have Angel Chests enabled. At the moment, we don't have an in game toggle for turning them off, but we can remove your permissions manually, so if for whatever reason you don't want Angel Chests anymore, please submit a ticket
 `,
-    lastUpdated: "24th July 2025"
+    lastUpdated: "23rd August 2025"
   },
   "armor-stands": {
     title: "Armor Stands",
     content: `
 # Armor Stands
-A plugin enabling armor stand customisation
-To get started, you just need to rename a piece of flint to ArmorStandTool, and right click
+Our dev team have built a custom plugin, to allow for using the [Armor Poser](https://modrinth.com/mod/armor-poser) mod despite us being on a Paper server!
+We therefore have 2 different ways of interacting with Armor Stands on the server. You can either use the aforementioned mod, or by renaming a piece of Flint to ArmorStandTool as per the page [here](https://www.spigotmc.org/resources/armorstandeditor-reborn.94503/). Please note, this GUI has been noted as pretty confusing / difficult to navigate by a lot of players, and so we heavily advise using the above mod instead :)
 
 ## Concept
 For those unfamiliar with Armor Stand editing, there will be a video up here soon™ explaining the features more indepth
 I personally recommend checking content by Hermitcraft youtubers such as [Xisuma](https://www.youtube.com/@xisumavoid), [ZombieCleo](https://www.youtube.com/@ZombieCleo) and [GoodTimeWithScar](https://www.youtube.com/@GoodTimesWithScar). I'm sure there are plenty others, but these are ones i'm personally familiar with :D 
 
 ## Vale Specific Settings
-We do limit some features to donating ranks such as size, invulnerability and invisibility, just in an attempt to assist with the lag situation that armor stands pose
-That said, if everybody uses them sparingly, and only where needed, we may be able to bring these features back into the domain of all players soon
+Please bare in mind how many armor stands you're using when you set them up, and make sure you disable gravity unless you absolutely need it. These things can help the server performance massively!
 
 ## Getting Help
 If you encounter any issues:
@@ -681,7 +680,7 @@ If you encounter any issues:
 I founded this server with the sole intention of making a vanilla plus, community accessible and transparently ran server, for like minded people
 This might be my passion project, but it doesn't mean i've thought of everything, and we love suggestions being sent through for the server, so head on over to the discord and pop something into the suggestions forum, it may just end up being implemented
 `,
-    lastUpdated: "24th July 2025"
+    lastUpdated: "24th August 2025"
   },
   "donating": {
     title: "Donating",
@@ -712,8 +711,8 @@ Visit our patreon: [ValeSMP Patreon](https://patreon.com/ValeSMP)
 
 ## Transparency
 We're committed to transparency:
-- Monthly server costs: ~£70
-- Excess donations go to server improvements, we may be able to upgrade soon :D
+- Monthly server costs: ~£110
+- Excess donations go to server improvements, our next target with any future donations is looking at some commercial licenses for mods such as Axiom for our creative players :)
 - Annual financial summary on costs posted on Discord every year
 `,
     lastUpdated: "22nd July 2025"
@@ -777,7 +776,7 @@ Below, i will link some videos and guides on adapting common youtube farms to wo
 
 Coming Soon™
 `,
-    lastUpdated: "22nd July 2025"
+    lastUpdated: "24th August 2025"
   },
   "server-specs": {
     title: "Server Specs",
@@ -786,9 +785,9 @@ Coming Soon™
 For the time being our main SMP server specs are as follows, but we are hoping to update soon! Please feel free to check out our [Patreon](https://patreon.com/ValeSMP) to help us move towards the goal of upgrading our server hardware <3
 
 **Hosting Location**: Western Europe
-**CPU**: AMD Ryzen 7 Pro 8700GE
-**RAM**: 64GB DDR5 ECC
-**Storage**: 2x 1TB NVMe SSD's running RAID 1
+**CPU**: AMD Ryzen™ 9 7950X3D
+**RAM**: 128 GB DDR5 ECC 
+**Storage**: 2 x 1.92 TB NVMe SSD running RAID 1
 **Connection**: Dedicated 1Gbps Ethernet
 
 If you are experiencing any lag, check the #server-status channel in the info section on discord, any issues should be reported there. If not, then it may be a ping issue, which would likely be client side. This can be fixed through various methods including free VPN's, checking your routers settings and other such generic troubleshooting bits outside my scope!
@@ -1052,7 +1051,7 @@ export default function GuidePage() {
                     { cmd: "/map", desc: "get links to the maps" },
                     { cmd: "/guide", desc: "get a link back here!" },
                     { cmd: "/lands", desc: "use the claiming system" },
-                    { cmd: "/server <name>", desc: "View all commands" }
+                    { cmd: "/server <name>", desc: "transfer to <name> server" }
                   ].map((command, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-[#0d1117] rounded-lg">
                       <div>

@@ -17,7 +17,7 @@ import Link from "next/link"
 import Image from "next/image"
 
 export default function Home() {
-  const [playerCount, setPlayerCount] = useState(47) // Default fallback
+  const [playerCount, setPlayerCount] = useState("-/-") // Default fallback
   const [isOnline, setIsOnline] = useState(true)
 
   useEffect(() => {
@@ -285,9 +285,9 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-3 font-ranyth">About</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="/news" className="text-muted-foreground hover:text-white">News</a></li>
+                {/* <li><a href="/news" className="text-muted-foreground hover:text-white">News</a></li>
                 <li><a href="/changelog" className="text-muted-foreground hover:text-white">Changelog</a></li>
-                <li><a href="/team" className="text-muted-foreground hover:text-white">Team</a></li>
+                <li><a href="/team" className="text-muted-foreground hover:text-white">Team</a></li>*/}
                 <li><a href="https://patreon.com/valesmp" className="text-muted-foreground hover:text-white">Support Us</a></li>
               </ul>
             </div>
@@ -299,7 +299,7 @@ export default function Home() {
                 <li><a href="/guide" className="text-muted-foreground hover:text-white">Guide</a></li>
                 <li><a href="/maps" className="text-muted-foreground hover:text-white">Maps</a></li>
                 <li><a href="/stats" className="text-muted-foreground hover:text-white">Stats</a></li>
-                <li><a href="/api" className="text-muted-foreground hover:text-white">API</a></li>
+                {/* <li><a href="/api" className="text-muted-foreground hover:text-white">API</a></li> */}
               </ul>
             </div>
 
@@ -307,10 +307,10 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-3 font-ranyth">Legal</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="/rules" className="text-muted-foreground hover:text-white">Content Rules</a></li>
+                {/* <li><a href="/rules" className="text-muted-foreground hover:text-white">Content Rules</a></li> */}
                 <li><a href="/terms" className="text-muted-foreground hover:text-white">Terms of Use</a></li>
                 <li><a href="/privacy" className="text-muted-foreground hover:text-white">Privacy Policy</a></li>
-                <li><a href="/security" className="text-muted-foreground hover:text-white">Security</a></li>
+                {/* <li><a href="/security" className="text-muted-foreground hover:text-white">Security</a></li> */}
               </ul>
             </div>
 
