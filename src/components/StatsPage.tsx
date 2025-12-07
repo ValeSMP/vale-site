@@ -217,13 +217,6 @@ const StatsPage = () => {
       statKey: 'minecraft:custom:minecraft:happy_ghast_one_cm',
       category: 'Movement'
     },
-    { id: 'portal_travel',
-      name: 'Portal Traveler',
-      objective: 'most nether portal uses',
-      icon: Eye,
-      statKey: 'minecraft:custom:minecraft:enter_nether_portal',
-      category: 'Movement'
-    },
     
 
     // MINING - PRECIOUS MATERIALS
