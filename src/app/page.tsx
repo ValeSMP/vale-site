@@ -113,7 +113,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold bg-gradient-to-r from-vale-green to-vale-green-dark bg-clip-text text-transparent">1.21.7</div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-vale-green to-vale-green-dark bg-clip-text text-transparent">1.21.10</div>
                 <div className="text-sm text-muted-foreground">Latest Version</div>
               </div>
               <div className="text-center">
