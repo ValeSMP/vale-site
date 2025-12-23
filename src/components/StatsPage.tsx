@@ -884,6 +884,13 @@ const StatsPage = () => {
       statKey: 'minecraft:used:minecraft:totem_of_undying',
       category: 'Tools'
     },
+    { id: 'pistons_used',
+      name: 'Piston Maniac',
+      objective: 'most pistons placed',
+      icon: Wrench,
+      statKey: 'minecraft:used:minecraft:piston',
+      category: 'Tools'
+    },
 
     // GENERAL
     { id: 'playtime',
