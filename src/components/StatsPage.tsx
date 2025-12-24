@@ -891,6 +891,13 @@ const StatsPage = () => {
       statKey: 'minecraft:used:minecraft:piston',
       category: 'Tools'
     },
+    { id: 'firework_rockets_used',
+      name: 'Trigger Happy',
+      objective: 'most rockets used',
+      icon: Wrench,
+      statKey: 'minecraft:used:minecraft:firework_rocket',
+      category: 'Tools'
+    },
 
     // GENERAL
     { id: 'playtime',
