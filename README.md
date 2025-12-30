@@ -110,10 +110,10 @@ valesmp-website/
 
 | Server | Address | Version | Description |
 |--------|---------|---------|-------------|
-| **Main Server** | `play.valesmp.com` | 1.21.7 | Velocity proxy endpoint |
-| **Survival** | Internal | 1.21.7 | Main survival world |
-| **Creative** | Internal | 1.21.7 | Creative plots |
-| **Resource** | Internal | 1.21.7 | Monthly resetting world |
+| **Main Server** | `play.valesmp.com` | 1.21.11 | Velocity proxy endpoint |
+| **Survival** | Internal | 1.21.11 | Main survival world |
+| **Creative** | Internal | 1.21.11 | Creative plots |
+| **Resource** | Internal | 1.21.11 | Monthly resetting world |
 
 </div>
 
