@@ -22,7 +22,7 @@
     <img src="https://img.shields.io/badge/Next.js-15.1-black?style=flat-square&logo=next.js" alt="Next.js">
     <img src="https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
     <img src="https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind">
-    <img src="https://img.shields.io/badge/Minecraft-1.21.7-62B47A?style=flat-square&logo=minecraft&logoColor=white" alt="Minecraft Version">
+    <img src="https://img.shields.io/badge/Minecraft-1.21.11-62B47A?style=flat-square&logo=minecraft&logoColor=white" alt="Minecraft Version">
     <img src="https://img.shields.io/badge/Status-Online-success?style=flat-square" alt="Status">
     <img src="https://img.shields.io/badge/Players-Lots-informational?style=flat-square" alt="Players">
   </p>
